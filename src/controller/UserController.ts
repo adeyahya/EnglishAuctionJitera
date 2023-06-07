@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { Inject, Service } from "typedi";
 import { NextApiRequest, NextApiResponse } from "next";
 import BaseController from "@/lib/http/BaseController";
