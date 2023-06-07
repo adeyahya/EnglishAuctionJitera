@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Inject, Service } from "typedi";
 import BaseController from "@/lib/http/BaseController";
 import type UserRespositoryInterface from "@/repositories/UserRepositoryInterface";
