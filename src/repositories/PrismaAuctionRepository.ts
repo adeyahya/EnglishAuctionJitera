@@ -6,6 +6,11 @@ import differenceInSeconds from "date-fns/differenceInSeconds";
 
 const prisma = new PrismaClient();
 
+const sleep = () =>
+  new Promise((resolve) => {
+    setTimeout(resolve, 1000);
+  });
+
 class PrismaAuctionRepository implements AuctionRepositoryInterface {
   public async all(): Promise<Auction[]> {
     return await prisma.auction.findMany();
@@ -42,6 +47,8 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
   }
 
   public async placeOffer(id: string, userId: string, amount: number) {
+    await sleep();
+    console.log("placing an offer");
     await prisma.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT * from "Auction" WHERE "id"=${id} for UPDATE`;
 

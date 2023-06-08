@@ -1,5 +1,6 @@
 import BaseController from "@/lib/http/BaseController";
 import type AccountRepositoryInterface from "@/repositories/AccountRepositoryInterface";
+import type QueueRepositoryInterface from "@/repositories/QueueRepositoryInterface";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Inject, Service } from "typedi";
 
@@ -7,7 +8,9 @@ import { Inject, Service } from "typedi";
 class AccountController extends BaseController {
   constructor(
     @Inject("account")
-    private accountRepo: AccountRepositoryInterface
+    private accountRepo: AccountRepositoryInterface,
+    @Inject("queue")
+    private queueRepo: QueueRepositoryInterface
   ) {
     super();
   }
@@ -29,6 +32,12 @@ class AccountController extends BaseController {
   public async put(req: NextApiRequest, res: NextApiResponse) {
     const { userId, amount } = req.body;
     await this.accountRepo.widraw(userId, amount);
+    return res.json({ status: "success" });
+  }
+
+  public async patch(req: NextApiRequest, res: NextApiResponse) {
+    const { userId, auctionId, amount } = req.body;
+    await this.queueRepo.placeOffer({ userId, auctionId, amount });
     return res.json({ status: "success" });
   }
 }
