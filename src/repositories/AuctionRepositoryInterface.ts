@@ -8,6 +8,7 @@ interface AuctionRepositoryInterface {
   create(auction: AuctionRequestDTO): Promise<Auction>;
   update(id: string, auction: Partial<AuctionRequestDTO>): Promise<Auction>;
   publish(id: string): Promise<Auction>;
+  placeOffer(id: string, userId: string, amount: number): Promise<void>;
 }
 
 export default AuctionRepositoryInterface;
