@@ -10,21 +10,33 @@ type Task = {
 };
 
 class FastqQueueRepository implements QueueRepositoryInterface {
-  private q: queueAsPromised<Task>;
+  private queueMap = new Map<string, queueAsPromised<Task>>();
 
-  constructor(private auctionRepo: AuctionRepositoryInterface) {
-    this.q = fastq.promise(async (arg: Task) => {
-      await this.auctionRepo.placeOffer(arg.auctionId, arg.userId, arg.amount);
-    }, 1);
-    this.q.error(console.error);
-  }
+  constructor(private auctionRepo: AuctionRepositoryInterface) {}
 
   public async placeOffer(params: Task) {
-    this.q.push(params);
+    if (this.queueMap.has(params.auctionId)) {
+      this.queueMap.get(params.auctionId)!.push(params);
+    }
+
+    const queue = fastq.promise(async (params: Task) => {
+      await this.auctionRepo.placeOffer(
+        params.auctionId,
+        params.userId,
+        params.amount
+      );
+    }, 1);
+    queue.error(console.error);
+    queue.drain = () => {
+      this.queueMap.delete(params.auctionId);
+    };
+
+    this.queueMap.set(params.auctionId, queue);
   }
 
   public async findOfferInQueue(params: Partial<Task>) {
-    const queueList = this.q.getQueue();
+    if (!params.auctionId) return;
+    const queueList = this.queueMap.get(params.auctionId)?.getQueue() ?? [];
     return queueList.find(
       (q) => q.auctionId === params.auctionId && q.userId === params.userId
     );
