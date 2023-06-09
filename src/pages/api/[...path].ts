@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import "@/lib/injectContainer";
+import "@/lib/injectContainers";
 import { Container } from "typedi";
 import { NextApiHandler } from "next";
 import Router from "@/lib/http/Router";
