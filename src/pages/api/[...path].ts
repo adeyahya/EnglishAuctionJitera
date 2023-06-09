@@ -13,7 +13,6 @@ const router = new Router();
  * the controller should always accessed through Container
  * so it's dependencies can be injected by typedi
  */
-
 const authController = Container.get(AuthController);
 const auctionController = Container.get(AuctionController);
 
