@@ -17,6 +17,5 @@ export const AuctionRequestDTO = Type.Pick(AuctionDTO, [
   "title",
   "description",
   "startingPrice",
-  "userId",
 ]);
 export type AuctionRequestType = Static<typeof AuctionRequestDTO>;

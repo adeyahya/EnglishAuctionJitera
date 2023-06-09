@@ -7,4 +7,6 @@ class HttpError {
   }
 }
 
+export const ErrorUnauthorized = new HttpError("Not Authorized", 401);
+
 export default HttpError;

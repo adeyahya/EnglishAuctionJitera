@@ -1,24 +1,23 @@
-import Validator from "@/lib/Validator";
+import { Auth, ValidateBody, ValidateResponse } from "@/lib/Validator";
 import type AuctionRepositoryInterface from "@/repositories/AuctionRepositoryInterface";
 import { AuctionDTO, AuctionRequestDTO } from "@/schema/Auction";
 import { Inject, Service } from "typedi";
-
-// validators
-const validateAuctionRequest = Validator.createValidator(AuctionRequestDTO);
-const validateAuctionResponse = Validator.createValidator(AuctionDTO);
 
 @Service()
 class AuctionController {
   constructor(
     @Inject("auction") private auctionRepo: AuctionRepositoryInterface
-  ) {}
+  ) {
+    this.create = this.create.bind(this);
+  }
 
-  public create = async (params: HttpParams) => {
-    const body = { ...params.body, userId: params.auth?.id };
-    validateAuctionRequest(body);
-    const auction = await this.auctionRepo.create(body);
-    return validateAuctionResponse(auction);
-  };
+  @Auth()
+  @ValidateBody(AuctionRequestDTO)
+  @ValidateResponse(AuctionDTO)
+  public async create(params: HttpParams, req: ApiRequest) {
+    const body = { ...params.body, userId: req.authUser.id };
+    return await this.auctionRepo.create(body);
+  }
 
   public list = async () => {
     return this.auctionRepo.all();

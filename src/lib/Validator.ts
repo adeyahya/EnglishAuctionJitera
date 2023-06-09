@@ -1,7 +1,7 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { NextApiHandler, NextApiRequest } from "next";
 import { TSchema } from "@sinclair/typebox";
+import { ErrorUnauthorized } from "@/lib/HttpError";
 
 const ajv = new Ajv({ removeAdditional: "all", strict: false });
 addFormats(ajv);
@@ -25,7 +25,7 @@ export function ValidateBody(schema: TSchema) {
     const original = descriptor.value;
     const validateSchema = Validator.createValidator(schema);
     descriptor.value = function (
-      ...args: [HttpParams, NextApiRequest, NextApiHandler]
+      ...args: [HttpParams, ApiRequest, ApiResponse]
     ) {
       validateSchema(args?.[0]?.body ?? {});
       return original.apply(this, args);
@@ -40,10 +40,25 @@ export function ValidateResponse(schema: TSchema) {
     const original = descriptor.value;
     const validateSchema = Validator.createValidator(schema);
     descriptor.value = async function (
-      ...args: [HttpParams, NextApiRequest, NextApiHandler]
+      ...args: [HttpParams, ApiRequest, ApiResponse]
     ) {
       const result = await original.apply(this, args);
       return validateSchema(result);
+    };
+
+    return descriptor;
+  };
+}
+
+export function Auth() {
+  return function (_: any, __: string, descriptor: PropertyDescriptor) {
+    const original = descriptor.value;
+    descriptor.value = async function (
+      ...args: [HttpParams, ApiRequest, ApiResponse]
+    ) {
+      const req = args?.[1];
+      req.verifyAuth();
+      return original.apply(this, args);
     };
 
     return descriptor;

@@ -1,8 +1,4 @@
-import ms from "ms";
-import jwt from "jsonwebtoken";
 import { Inject, Service } from "typedi";
-import { serialize } from "cookie";
-import type { NextApiRequest, NextApiResponse } from "next";
 
 import type UserRespositoryInterface from "@/repositories/UserRepositoryInterface";
 import HttpError from "@/lib/HttpError";
@@ -29,35 +25,15 @@ class AuthController {
 
   @ValidateBody(LoginRequestDTO)
   @ValidateResponse(AuthReponseDTO)
-  public async login(
-    params: HttpParams,
-    _: NextApiRequest,
-    res: NextApiResponse
-  ) {
+  public async login(params: HttpParams, _: ApiRequest, res: ApiResponse) {
     const user = await this.userRepo.findByEmail(params.body.email);
     if (!user) throw ErrorUserNotFound;
-
     const isPasswordValid = await comparePassword(
       params.body.password,
       user.password
     );
-
     if (!isPasswordValid) throw ErrorInvalidPassword;
-    const token = jwt.sign(
-      { email: user.email, name: user.name, id: user.id },
-      "secret",
-      {
-        expiresIn: "12h",
-      }
-    );
-    const cookie = serialize("authToken", token, {
-      httpOnly: true,
-      path: "/",
-      sameSite: true,
-      expires: new Date(new Date().getTime() + ms("12h")),
-    });
-    res.setHeader("Set-Cookie", cookie);
-
+    res.setAuth({ email: user.email, name: user.name, id: user.id });
     return user;
   }
 

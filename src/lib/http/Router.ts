@@ -1,27 +1,18 @@
-import { parse } from "cookie";
-import { NextApiRequest, NextApiResponse } from "next";
 import UrlPattern from "url-pattern";
 import jwt from "jsonwebtoken";
-import HttpError from "@/lib/HttpError";
-
-const UnauthorizedError = new HttpError("Not Authorized", 401);
+import * as cookie from "cookie";
+import { ErrorUnauthorized } from "@/lib/HttpError";
+import ms from "ms";
 
 type HttpVerbs = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 type RouteHandler = (
   params: HttpParams,
-  req: NextApiRequest,
-  res: NextApiResponse
+  req: ApiRequest,
+  res: ApiResponse
 ) => Promise<any>;
 
-type RouteOptions = {
-  isProtected?: boolean;
-};
-
 class Router {
-  private routeMap = new Map<
-    HttpVerbs,
-    Set<[UrlPattern, RouteHandler, RouteOptions | undefined]>
-  >([
+  private routeMap = new Map<HttpVerbs, Set<[UrlPattern, RouteHandler]>>([
     ["GET", new Set([])],
     ["POST", new Set([])],
     ["PATCH", new Set([])],
@@ -30,57 +21,75 @@ class Router {
   ]);
   constructor() {}
 
-  public async get(
-    pattern: string,
-    handler: RouteHandler,
-    options?: RouteOptions
-  ) {
-    this.routeMap.get("GET")?.add([new UrlPattern(pattern), handler, options]);
+  public async get(pattern: string, handler: RouteHandler) {
+    this.routeMap.get("GET")?.add([new UrlPattern(pattern), handler]);
   }
 
-  public async post(
-    pattern: string,
-    handler: RouteHandler,
-    options?: RouteOptions
-  ) {
-    this.routeMap.get("POST")?.add([new UrlPattern(pattern), handler, options]);
+  public async post(pattern: string, handler: RouteHandler) {
+    this.routeMap.get("POST")?.add([new UrlPattern(pattern), handler]);
   }
 
-  public async patch(
-    pattern: string,
-    handler: RouteHandler,
-    options?: RouteOptions
-  ) {
-    this.routeMap
-      .get("PATCH")
-      ?.add([new UrlPattern(pattern), handler, options]);
+  public async patch(pattern: string, handler: RouteHandler) {
+    this.routeMap.get("PATCH")?.add([new UrlPattern(pattern), handler]);
   }
 
-  public async put(
-    pattern: string,
-    handler: RouteHandler,
-    options?: RouteOptions
-  ) {
-    this.routeMap.get("PUT")?.add([new UrlPattern(pattern), handler, options]);
+  public async put(pattern: string, handler: RouteHandler) {
+    this.routeMap.get("PUT")?.add([new UrlPattern(pattern), handler]);
   }
 
-  public async delete(
-    pattern: string,
-    handler: RouteHandler,
-    options?: RouteOptions
-  ) {
-    this.routeMap
-      .get("DELETE")
-      ?.add([new UrlPattern(pattern), handler, options]);
+  public async delete(pattern: string, handler: RouteHandler) {
+    this.routeMap.get("DELETE")?.add([new UrlPattern(pattern), handler]);
   }
 
-  public async eval(req: NextApiRequest, res: NextApiResponse) {
+  public async eval(req: ApiRequest, res: ApiResponse) {
     if (!req.method) return res.end("not implemented");
+
+    // inject jwt signer
+    res.jwtSign = jwt.sign;
+
+    // inject method to set cookie
+    res.setCookie = (
+      name: string,
+      value: string,
+      opts?: cookie.CookieSerializeOptions
+    ) => {
+      const cookieString = cookie.serialize(name, value, opts);
+      res.setHeader("Set-Cookie", cookieString);
+    };
+
+    res.setAuth = (payload: any) => {
+      const token = res.jwtSign(
+        payload,
+        // TODO: move to envar
+        "secret",
+        {
+          expiresIn: "12h",
+        }
+      );
+
+      res.setCookie("authToken", token, {
+        httpOnly: true,
+        path: "/",
+        maxAge: ms("12h") / 60,
+      });
+    };
+
+    req.verifyAuth = () => {
+      try {
+        const { authToken } = cookie.parse(req.headers.cookie ?? "");
+        const payload = jwt.verify(authToken, "secret");
+        if (!payload) throw {};
+        req.authUser = payload;
+      } catch (error) {
+        throw ErrorUnauthorized;
+      }
+    };
+
     const patterns = Array.from(
       this.routeMap.get(req.method as HttpVerbs) ?? new Set([])
     );
 
-    for (let [pattern, handler, options] of patterns) {
+    for (let [pattern, handler] of patterns) {
       const pathString = "/" + ((req.query.path as string[]) ?? []).join("/");
       const params = pattern.match(pathString);
       const httpParams: HttpParams = {
@@ -91,19 +100,6 @@ class Router {
 
       if (params) {
         req.params = params;
-        if (options?.isProtected) {
-          try {
-            const { authToken } = parse(req.headers.cookie ?? "");
-            // TODO: store secret into envar
-            const payload = jwt.verify(authToken, "secret");
-            if (!payload) throw {};
-
-            httpParams.auth = payload;
-          } catch (error) {
-            throw UnauthorizedError;
-          }
-        }
-
         return await handler(httpParams, req, res);
       }
     }

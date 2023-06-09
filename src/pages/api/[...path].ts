@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import "@/lib/injectContainers";
 import { Container } from "typedi";
-import { NextApiHandler } from "next";
 import Router from "@/lib/http/Router";
 import AuthController from "@/controller/AuthController";
 import AuctionController from "@/controller/AuctionController";
@@ -22,9 +21,9 @@ const auctionController = Container.get(AuctionController);
 router.post("/auth/login", authController.login);
 router.post("/auth/register", authController.register);
 router.get("/auction", auctionController.list);
-router.post("/auction", auctionController.create, { isProtected: true });
+router.post("/auction", auctionController.create);
 
-const handler: NextApiHandler = async (req, res) => {
+const handler = async (req: ApiRequest, res: ApiResponse) => {
   try {
     const responseObject = await router.eval(req, res);
     return res.json(responseObject);
