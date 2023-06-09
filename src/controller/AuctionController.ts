@@ -17,7 +17,6 @@ class AuctionController {
     const body = { ...params.body, userId: params.auth?.id };
     validateAuctionRequest(body);
     const auction = await this.auctionRepo.create(body);
-    // console.log
     return validateAuctionResponse(auction);
   };
 
