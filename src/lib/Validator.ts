@@ -1,11 +1,13 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { NextApiHandler, NextApiRequest } from "next";
+import { TSchema } from "@sinclair/typebox";
+
 const ajv = new Ajv({ removeAdditional: "all", strict: false });
 addFormats(ajv);
 
 class Validator {
-  public static createValidator = (dto: object) => {
+  public static createValidator = (dto: TSchema) => {
     const validate = ajv.compile(dto);
 
     return (data: object) => {
@@ -18,7 +20,7 @@ class Validator {
   };
 }
 
-export function ValidateBody(schema: object) {
+export function ValidateBody(schema: TSchema) {
   return function (_: any, __: string, descriptor: PropertyDescriptor) {
     const original = descriptor.value;
     const validateSchema = Validator.createValidator(schema);
@@ -33,7 +35,7 @@ export function ValidateBody(schema: object) {
   };
 }
 
-export function ValidateResponse(schema: object) {
+export function ValidateResponse(schema: TSchema) {
   return function (_: any, __: string, descriptor: PropertyDescriptor) {
     const original = descriptor.value;
     const validateSchema = Validator.createValidator(schema);

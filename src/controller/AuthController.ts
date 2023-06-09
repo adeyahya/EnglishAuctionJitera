@@ -1,19 +1,19 @@
-import { Inject, Service } from "typedi";
-import jwt from "jsonwebtoken";
-import { serialize } from "cookie";
 import ms from "ms";
+import jwt from "jsonwebtoken";
+import { Inject, Service } from "typedi";
+import { serialize } from "cookie";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 import type UserRespositoryInterface from "@/repositories/UserRepositoryInterface";
+import HttpError from "@/lib/HttpError";
 import {
   AuthReponseDTO,
   LoginRequestDTO,
   RegisterRequestDTO,
 } from "@/schema/Auth";
 
-import HttpError from "@/lib/HttpError";
 import { ValidateBody, ValidateResponse } from "@/lib/Validator";
 import { comparePassword, hashPassword } from "@/lib/password";
-import type { NextApiRequest, NextApiResponse } from "next";
 
 // errors
 const ErrorUserExist = new HttpError("User Already Exist");
