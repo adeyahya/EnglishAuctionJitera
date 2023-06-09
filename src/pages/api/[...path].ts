@@ -3,8 +3,8 @@ import "@/lib/injectContainer";
 import { Container } from "typedi";
 import { NextApiHandler } from "next";
 import Router from "@/lib/http/Router";
-import UserController from "@/controller/UserController";
 import AuthController from "@/controller/AuthController";
+import AuctionController from "@/controller/AuctionController";
 
 const router = new Router();
 
@@ -15,12 +15,15 @@ const router = new Router();
  */
 
 const authController = Container.get(AuthController);
+const auctionController = Container.get(AuctionController);
 
 /**
  * route definition
  */
 router.post("/auth/login", authController.login);
 router.post("/auth/register", authController.register);
+router.get("/auction", auctionController.list);
+router.post("/auction", auctionController.create, { isProtected: true });
 
 const handler: NextApiHandler = async (req, res) => {
   try {
@@ -31,6 +34,7 @@ const handler: NextApiHandler = async (req, res) => {
       return res.status(error.statusCode).json(error.errors);
     }
 
+    console.error(error);
     res.status(520).end();
   }
 };

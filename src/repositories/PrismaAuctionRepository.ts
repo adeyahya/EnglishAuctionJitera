@@ -1,8 +1,7 @@
-import AuctionRepositoryInterface, {
-  AuctionRequestDTO,
-} from "@/repositories/AuctionRepositoryInterface";
+import AuctionRepositoryInterface from "@/repositories/AuctionRepositoryInterface";
 import { Auction, PrismaClient } from "@prisma/client";
 import differenceInSeconds from "date-fns/differenceInSeconds";
+import { AuctionRequestType, AuctionType } from "@/schema/Auction";
 
 const prisma = new PrismaClient();
 
@@ -12,14 +11,22 @@ const sleep = () =>
   });
 
 class PrismaAuctionRepository implements AuctionRepositoryInterface {
-  public async all(): Promise<Auction[]> {
-    return await prisma.auction.findMany();
+  public async all(): Promise<AuctionType[]> {
+    const auctionList = await prisma.auction.findMany();
+    return auctionList.map((auction) => ({
+      ...auction,
+      startingPrice: auction.startingPrice.toNumber(),
+    }));
   }
 
-  public async create(auction: AuctionRequestDTO): Promise<Auction> {
-    return await prisma.auction.create({
-      data: { ...auction, status: "DRAFT" },
+  public async create(req: AuctionRequestType): Promise<AuctionType> {
+    const auction = await prisma.auction.create({
+      data: { ...req, status: "DRAFT" },
     });
+    return {
+      ...auction,
+      startingPrice: auction.startingPrice.toNumber(),
+    };
   }
 
   public async find(id: string): Promise<Auction> {
@@ -39,10 +46,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
     return auction;
   }
 
-  public async update(
-    id: string,
-    auction: Partial<AuctionRequestDTO>
-  ): Promise<Auction> {
+  public async update(id: string, auction: any): Promise<Auction> {
     return await prisma.auction.update({ where: { id }, data: auction });
   }
 

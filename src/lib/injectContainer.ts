@@ -8,8 +8,9 @@ import AuthRepository from "@/repositories/AuthRepository";
 const injectContainers = () => {
   const user = new PrismaUserRepository();
   const auth = new AuthRepository(user);
+  const auction = new PrismaAuctionRepository();
   Container.set("user", user);
-  Container.set("auction", PrismaAuctionRepository);
+  Container.set("auction", auction);
   Container.set("account", PrismaAccountRepository);
   Container.set("queue", FastqQueueRepository);
   Container.set("auth", auth);

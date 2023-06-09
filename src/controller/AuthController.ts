@@ -45,9 +45,13 @@ class AuthController {
     );
 
     if (!isPasswordValid) throw ErrorInvalidPassword;
-    const token = jwt.sign({ email: user.email, name: user.name }, "secret", {
-      expiresIn: "12h",
-    });
+    const token = jwt.sign(
+      { email: user.email, name: user.name, id: user.id },
+      "secret",
+      {
+        expiresIn: "12h",
+      }
+    );
     const cookie = serialize("authToken", token, {
       httpOnly: true,
       path: "/",

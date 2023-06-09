@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-const ajv = new Ajv({ removeAdditional: "all" });
+const ajv = new Ajv({ removeAdditional: "all", strict: false });
 addFormats(ajv);
 
 class Validator {

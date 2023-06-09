@@ -14,5 +14,6 @@ declare global {
     body: NextApiRequest["body"];
     params: NextApiRequest["params"];
     query: NextApiRequest["query"];
+    auth?: any;
   }
 }
