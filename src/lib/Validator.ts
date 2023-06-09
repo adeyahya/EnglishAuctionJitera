@@ -1,5 +1,6 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
+import { NextApiHandler, NextApiRequest } from "next";
 const ajv = new Ajv({ removeAdditional: "all", strict: false });
 addFormats(ajv);
 
@@ -14,6 +15,36 @@ class Validator {
 
       return data;
     };
+  };
+}
+
+export function ValidateBody(schema: object) {
+  return function (_: any, __: string, descriptor: PropertyDescriptor) {
+    const original = descriptor.value;
+    const validateSchema = Validator.createValidator(schema);
+    descriptor.value = function (
+      ...args: [HttpParams, NextApiRequest, NextApiHandler]
+    ) {
+      validateSchema(args?.[0]?.body ?? {});
+      return original.apply(this, args);
+    };
+
+    return descriptor;
+  };
+}
+
+export function ValidateResponse(schema: object) {
+  return function (_: any, __: string, descriptor: PropertyDescriptor) {
+    const original = descriptor.value;
+    const validateSchema = Validator.createValidator(schema);
+    descriptor.value = async function (
+      ...args: [HttpParams, NextApiRequest, NextApiHandler]
+    ) {
+      const result = await original.apply(this, args);
+      return validateSchema(result);
+    };
+
+    return descriptor;
   };
 }
 

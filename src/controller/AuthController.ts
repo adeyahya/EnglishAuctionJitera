@@ -11,14 +11,9 @@ import {
 } from "@/schema/Auth";
 
 import HttpError from "@/lib/HttpError";
-import Validator from "@/lib/Validator";
+import { ValidateBody, ValidateResponse } from "@/lib/Validator";
 import { comparePassword, hashPassword } from "@/lib/password";
-import { NextApiRequest, NextApiResponse } from "next";
-
-// validators
-const validateLoginRequest = Validator.createValidator(LoginRequestDTO);
-const validateRegisterRequest = Validator.createValidator(RegisterRequestDTO);
-const validateAuthReponse = Validator.createValidator(AuthReponseDTO);
+import type { NextApiRequest, NextApiResponse } from "next";
 
 // errors
 const ErrorUserExist = new HttpError("User Already Exist");
@@ -27,15 +22,18 @@ const ErrorInvalidPassword = new HttpError("Invalid password", 400);
 
 @Service()
 class AuthController {
-  constructor(@Inject("user") private userRepo: UserRespositoryInterface) {}
+  constructor(@Inject("user") private userRepo: UserRespositoryInterface) {
+    this.login = this.login.bind(this);
+    this.register = this.register.bind(this);
+  }
 
-  public login = async (
+  @ValidateBody(LoginRequestDTO)
+  @ValidateResponse(AuthReponseDTO)
+  public async login(
     params: HttpParams,
     _: NextApiRequest,
     res: NextApiResponse
-  ) => {
-    validateLoginRequest(params.body);
-
+  ) {
     const user = await this.userRepo.findByEmail(params.body.email);
     if (!user) throw ErrorUserNotFound;
 
@@ -60,23 +58,21 @@ class AuthController {
     });
     res.setHeader("Set-Cookie", cookie);
 
-    return validateAuthReponse(user);
-  };
+    return user;
+  }
 
-  public register = async (params: HttpParams) => {
-    validateRegisterRequest(params.body);
-
+  @ValidateBody(RegisterRequestDTO)
+  @ValidateResponse(AuthReponseDTO)
+  public async register(params: HttpParams) {
     const existingUser = await this.userRepo.findByEmail(params.body.email);
     if (existingUser) throw ErrorUserExist;
 
     const hashedPassword = await hashPassword(params.body.password);
-    const user = await this.userRepo.create({
+    return await this.userRepo.create({
       ...params.body,
       password: hashedPassword,
     });
-
-    return validateAuthReponse(user);
-  };
+  }
 }
 
 export default AuthController;
