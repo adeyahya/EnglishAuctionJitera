@@ -20,7 +20,7 @@ const validateLoginRequest = Validator.createValidator(LoginRequestDTO);
 const validateRegisterRequest = Validator.createValidator(RegisterRequestDTO);
 const validateAuthReponse = Validator.createValidator(AuthReponseDTO);
 
-// erros
+// errors
 const ErrorUserExist = new HttpError("User Already Exist");
 const ErrorUserNotFound = new HttpError("User Not Found", 404);
 const ErrorInvalidPassword = new HttpError("Invalid password", 400);
