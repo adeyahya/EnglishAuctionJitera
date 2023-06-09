@@ -9,10 +9,13 @@ const injectContainers = () => {
   const user = new PrismaUserRepository();
   const auth = new AuthRepository(user);
   const auction = new PrismaAuctionRepository();
+  const account = new PrismaAccountRepository();
+  const queue = new FastqQueueRepository(auction);
+
   Container.set("user", user);
   Container.set("auction", auction);
-  Container.set("account", PrismaAccountRepository);
-  Container.set("queue", FastqQueueRepository);
+  Container.set("account", account);
+  Container.set("queue", queue);
   Container.set("auth", auth);
 };
 
