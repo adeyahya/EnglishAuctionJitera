@@ -5,11 +5,6 @@ import { AuctionRequestType, AuctionType } from "@/schema/Auction";
 
 const prisma = new PrismaClient();
 
-const sleep = () =>
-  new Promise((resolve) => {
-    setTimeout(resolve, 1000);
-  });
-
 class PrismaAuctionRepository implements AuctionRepositoryInterface {
   public async all(): Promise<AuctionType[]> {
     const auctionList = await prisma.auction.findMany();
@@ -19,7 +14,9 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
     }));
   }
 
-  public async create(req: AuctionRequestType): Promise<AuctionType> {
+  public async create(
+    req: AuctionRequestType & { userId: string }
+  ): Promise<AuctionType> {
     const auction = await prisma.auction.create({
       data: { ...req, status: "DRAFT" },
     });
@@ -51,11 +48,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
   }
 
   public async placeOffer(id: string, userId: string, amount: number) {
-    await sleep();
-    console.log("placing an offer");
     await prisma.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT * from "Auction" WHERE "id"=${id} for UPDATE`;
-
       const auction = await tx.auction.findFirst({
         where: {
           id,
