@@ -35,17 +35,18 @@ model User {
 }
 
 model Auction {
-  id            String    @id @default(uuid())
+  id            String         @id @default(uuid())
   title         String
   description   String?
   startingPrice Decimal
+  status        AUCTION_STATUS
   timeWindow    Decimal
   endedAt       DateTime?
   publishedAt   DateTime?
   highestBidId  String?
   userId        String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now())
 
   bidList Bid[]
   author  User  @relation(fields: [userId], references: [id])
@@ -68,9 +69,10 @@ model Transaction {
   amount        Decimal
   referenceType String
   referenceId   String
-  user          User             @relation(fields: [userId], references: [id])
   userId        String
   createdAt     DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 
   @@index([referenceType])
   @@index([referenceType, referenceId])

@@ -10,6 +10,7 @@ interface AuctionRepositoryInterface {
       "title" | "startingPrice" | "description" | "userId"
     >
   ): Promise<AuctionType>;
+  close(id: string): Promise<AuctionType>;
   update(id: string, auction: any): Promise<Auction>;
   publish(id: string): Promise<AuctionType>;
   getHighestBid(id: string): Promise<BidType | null>;

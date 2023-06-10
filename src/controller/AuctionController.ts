@@ -6,12 +6,7 @@ import {
 import { Auth, ValidateBody, ValidateResponse } from "@/lib/Validator";
 import type AccountRepositoryInterface from "@/repositories/interfaces/AccountRepositoryInterface";
 import type AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
-import {
-  AuctionDTO,
-  AuctionRequestDTO,
-  BidDTO,
-  BidRequestDTO,
-} from "@/schema/Auction";
+import { AuctionDTO, AuctionRequestDTO, BidRequestDTO } from "@/schema/Auction";
 import { Inject, Service } from "typedi";
 
 @Service()
@@ -44,7 +39,13 @@ class AuctionController {
   @ValidateResponse(AuctionDTO)
   public async view(params: HttpParams) {
     const id = params.params.id;
-    return await this.auctionRepo.find(id);
+    const auction = await this.auctionRepo.find(id);
+
+    // lazily close auction on view
+    if (auction.endedAt && auction.endedAt.getTime() < new Date().getTime()) {
+      return await this.auctionRepo.close(id);
+    }
+    return auction;
   }
 
   @Auth()

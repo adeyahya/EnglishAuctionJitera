@@ -25,7 +25,7 @@ class PrismaTransactionRepository implements AccountRepositoryInterface {
       JOIN "Auction" AS auction
         ON bid."auctionId" = auction."id"
         AND auction."highestBidId" = bid."id"
-      WHERE auction."endedAt" > NOW()
+      WHERE auction."status" = 'OPEN'
         AND bid."userId" = ${userId};`;
 
     const balance = await prisma.transaction.aggregate({

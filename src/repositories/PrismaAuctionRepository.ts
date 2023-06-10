@@ -10,21 +10,9 @@ const prisma = new PrismaClient();
 class PrismaAuctionRepository implements AuctionRepositoryInterface {
   constructor() {}
 
-  // because status is depends on timestamp
-  // I decided to compute it instead of storing it into column
-  // because I think it's useless to store the status
-  // if the actual source of truth is a time
-  private computeStatus(auction: Auction) {
-    if (!auction.publishedAt) return "DRAFT";
-    if (!auction.endedAt) return "DRAFT";
-    if (auction.endedAt.getTime() < new Date().getTime()) return "CLOSED";
-    return "OPEN";
-  }
-
   private transformAuction(auction: Auction) {
     return {
       ...auction,
-      status: this.computeStatus(auction),
       timeWindow: auction.timeWindow.toNumber(),
       startingPrice: auction.startingPrice.toNumber(),
     };
@@ -47,7 +35,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
     req: AuctionRequestType & { userId: string }
   ): Promise<AuctionType> {
     const auction = await prisma.auction.create({
-      data: { ...req },
+      data: { ...req, status: "DRAFT" },
     });
     return this.transformAuction(auction);
   }
@@ -80,9 +68,47 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
       data: {
         endedAt: addHours(now, prevAuction?.timeWindow ?? 0),
         publishedAt: now,
+        status: "OPEN",
       },
     });
     return this.transformAuction(auction);
+  }
+
+  public async close(id: string) {
+    await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT * FROM "Auction" WHERE "id"=${id} FOR UPDATE`;
+      const auction = await tx.auction.findUnique({ where: { id } });
+      if (auction?.highestBidId) {
+        const bid = await tx.bid.findUnique({
+          where: { id: auction.highestBidId },
+        });
+        if (!bid) throw {};
+
+        // deduct bidder balance
+        await tx.transaction.create({
+          data: {
+            amount: -bid.offer.toNumber(),
+            type: "CREDIT",
+            referenceId: bid.id,
+            referenceType: "bid",
+            userId: bid.userId,
+          },
+        });
+
+        // increase author balance
+        await tx.transaction.create({
+          data: {
+            amount: bid.offer.toNumber(),
+            type: "DEBIT",
+            referenceId: auction.id,
+            referenceType: "auction",
+            userId: auction.userId,
+          },
+        });
+      }
+      await tx.auction.update({ where: { id }, data: { status: "CLOSED" } });
+    });
+    return await this.find(id);
   }
 
   public async update(id: string, auction: any): Promise<Auction> {
@@ -152,7 +178,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
         JOIN "Auction" AS auction
           ON bid."auctionId" = auction."id"
           AND auction."highestBidId" = bid."id"
-        WHERE auction."endedAt" < NOW()
+        WHERE auction."status" = 'OPEN'
           AND bid."userId" = ${userId};`;
 
       const availableBalance =
