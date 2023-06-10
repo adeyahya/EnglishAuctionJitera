@@ -8,5 +8,9 @@ class HttpError {
 }
 
 export const ErrorUnauthorized = new HttpError("Not Authorized", 401);
+export const ErrorNegativeAmount = new HttpError(
+  "Amount of money should greater than zero",
+  400
+);
 
 export default HttpError;

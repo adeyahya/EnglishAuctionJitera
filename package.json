@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:integration": "jest src/tests/integrations"
+    "test:integration": "jest src/tests/integrations --runInBand"
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",

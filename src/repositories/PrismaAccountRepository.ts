@@ -1,7 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import AccountRepositoryInterface, {
-  BalanceDTO,
-} from "@/repositories/AccountRepositoryInterface";
+import AccountRepositoryInterface from "@/repositories/AccountRepositoryInterface";
 import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
@@ -17,6 +15,7 @@ class PrismaTransactionRepository implements AccountRepositoryInterface {
         type: "DEBIT",
       },
     });
+    return await this.balance(userId);
   }
 
   public async widraw(userId: string, amount: number) {
@@ -61,7 +60,7 @@ class PrismaTransactionRepository implements AccountRepositoryInterface {
     });
   }
 
-  public async balance(userId: string): Promise<BalanceDTO> {
+  public async balance(userId: string) {
     const reservedBalance = await prisma.$queryRaw<{ reserved: string }[]>`
       SELECT COALESCE(SUM(bid.offer), 0) as reserved
       FROM "Bid" AS bid
@@ -81,7 +80,7 @@ class PrismaTransactionRepository implements AccountRepositoryInterface {
     });
 
     return {
-      total: balance._sum.amount?.toNumber() ?? 0,
+      balance: balance._sum.amount?.toNumber() ?? 0,
       reserved: +(reservedBalance?.[0]?.reserved ?? "0"),
     };
   }

@@ -4,6 +4,7 @@ import { Container } from "typedi";
 import Router from "@/lib/http/Router";
 import AuthController from "@/controller/AuthController";
 import AuctionController from "@/controller/AuctionController";
+import AccountController from "@/controller/AccountController";
 
 const router = new Router();
 
@@ -14,6 +15,7 @@ const router = new Router();
  */
 const authController = Container.get(AuthController);
 const auctionController = Container.get(AuctionController);
+const accountController = Container.get(AccountController);
 
 /**
  * route definition
@@ -21,8 +23,11 @@ const auctionController = Container.get(AuctionController);
 router.post("/auth/login", authController.login);
 router.post("/auth/register", authController.register);
 router.get("/auth", authController.user);
+
 router.get("/auction", auctionController.list);
 router.post("/auction", auctionController.create);
+
+router.post("/account/deposit", accountController.deposit);
 
 const handler = async (req: ApiRequest, res: ApiResponse) => {
   try {
