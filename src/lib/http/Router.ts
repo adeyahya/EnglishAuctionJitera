@@ -1,7 +1,7 @@
 import UrlPattern from "url-pattern";
 import jwt from "jsonwebtoken";
 import * as cookie from "cookie";
-import { ErrorUnauthorized } from "@/lib/HttpError";
+import HttpError, { ErrorUnauthorized } from "@/lib/HttpError";
 import ms from "ms";
 
 type HttpVerbs = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -90,7 +90,7 @@ class Router {
     );
 
     for (let [pattern, handler] of patterns) {
-      const pathString = "/" + ((req.query.path as string[]) ?? []).join("/");
+      const pathString = getPathString(req.query?.path ?? req.url);
       const params = pattern.match(pathString);
       const httpParams: HttpParams = {
         body: req.body,
@@ -104,8 +104,14 @@ class Router {
       }
     }
 
-    return res.status(501).end("not implemented");
+    throw new HttpError("Not Implemented", 501);
   }
 }
+
+const getPathString = (paths?: string[] | string) => {
+  if (!paths) return "/";
+  if (typeof paths === "string") return paths;
+  return "/" + (paths ?? []).join("/");
+};
 
 export default Router;

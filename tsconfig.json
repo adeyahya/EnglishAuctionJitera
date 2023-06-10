@@ -21,7 +21,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "types": [
-      "./@types/global.d.ts"
+      "./@types/global.d.ts",
+      "jest"
     ],
     "paths": {
       "@/*": [
