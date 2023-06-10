@@ -1,6 +1,6 @@
 import { ErrorNegativeAmount } from "@/lib/HttpError";
 import { Auth, ValidateBody, ValidateResponse } from "@/lib/Validator";
-import type AccountRepositoryInterface from "@/repositories/AccountRepositoryInterface";
+import type AccountRepositoryInterface from "@/repositories/interfaces/AccountRepositoryInterface";
 import { BalanceDTO, DepositRequestDTO } from "@/schema/Account";
 import { Inject, Service } from "typedi";
 

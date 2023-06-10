@@ -1,6 +1,6 @@
 import { Service } from "typedi";
 import { PrismaClient, User } from "@prisma/client";
-import UserRespositoryInterface from "@/repositories/UserRepositoryInterface";
+import UserRespositoryInterface from "@/repositories/interfaces/UserRepositoryInterface";
 
 const prisma = new PrismaClient();
 

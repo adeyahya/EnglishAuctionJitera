@@ -1,4 +1,4 @@
-import AuctionRepositoryInterface from "@/repositories/AuctionRepositoryInterface";
+import AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
 import { Auction, PrismaClient } from "@prisma/client";
 import differenceInSeconds from "date-fns/differenceInSeconds";
 import { AuctionRequestType, AuctionType } from "@/schema/Auction";

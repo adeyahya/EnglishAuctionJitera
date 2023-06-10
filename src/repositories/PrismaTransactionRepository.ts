@@ -1,4 +1,4 @@
-import TransactionRepositoryInterface from "@/repositories/TransactionRepositoryInterface";
+import TransactionRepositoryInterface from "@/repositories/interfaces/TransactionRepositoryInterface";
 import { PrismaClient, Transaction } from "@prisma/client";
 
 const prisma = new PrismaClient();

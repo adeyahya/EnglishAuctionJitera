@@ -2,8 +2,8 @@ import { comparePassword, hashPassword } from "@/lib/password";
 import AuthRepositoryInterface, {
   LoginRequestDTO,
   RegisterRequestDTO,
-} from "@/repositories/AuthRepositoryInterface";
-import UserRespositoryInterface from "@/repositories/UserRepositoryInterface";
+} from "@/repositories/interfaces/AuthRepositoryInterface";
+import UserRespositoryInterface from "@/repositories/interfaces/UserRepositoryInterface";
 import jwt from "jsonwebtoken";
 
 class AuthRepository implements AuthRepositoryInterface {

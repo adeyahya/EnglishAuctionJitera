@@ -1,6 +1,6 @@
 import { Inject, Service } from "typedi";
 import { NextApiRequest, NextApiResponse } from "next";
-import type UserRespositoryInterface from "@/repositories/UserRepositoryInterface";
+import type UserRespositoryInterface from "@/repositories/interfaces/UserRepositoryInterface";
 
 @Service()
 class UserController {

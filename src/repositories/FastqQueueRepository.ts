@@ -1,5 +1,5 @@
-import QueueRepositoryInterface from "@/repositories/QueueRepositoryInterface";
-import type AuctionRepositoryInterface from "@/repositories/AuctionRepositoryInterface";
+import QueueRepositoryInterface from "@/repositories/interfaces/QueueRepositoryInterface";
+import type AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
 import fastq from "fastq";
 import type { queueAsPromised } from "fastq";
 

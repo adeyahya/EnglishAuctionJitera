@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import AccountRepositoryInterface from "@/repositories/AccountRepositoryInterface";
+import AccountRepositoryInterface from "@/repositories/interfaces/AccountRepositoryInterface";
 import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();

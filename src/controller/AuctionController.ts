@@ -1,5 +1,5 @@
 import { Auth, ValidateBody, ValidateResponse } from "@/lib/Validator";
-import type AuctionRepositoryInterface from "@/repositories/AuctionRepositoryInterface";
+import type AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
 import { AuctionDTO, AuctionRequestDTO } from "@/schema/Auction";
 import { Inject, Service } from "typedi";
 

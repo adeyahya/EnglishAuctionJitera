@@ -1,6 +1,6 @@
 import { Inject, Service } from "typedi";
 
-import type UserRespositoryInterface from "@/repositories/UserRepositoryInterface";
+import type UserRespositoryInterface from "@/repositories/interfaces/UserRepositoryInterface";
 import HttpError from "@/lib/HttpError";
 import {
   AuthResponseDTO,
