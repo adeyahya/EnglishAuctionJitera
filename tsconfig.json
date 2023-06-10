@@ -20,6 +20,10 @@
     "incremental": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "types": [
+      "./@types/global.d.ts",
+      "jest"
+    ],
     "paths": {
       "@/*": [
         "./src/*"

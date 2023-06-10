@@ -1,19 +1,14 @@
-import "reflect-metadata";
 import { Inject, Service } from "typedi";
 import { NextApiRequest, NextApiResponse } from "next";
-import BaseController from "@/lib/http/BaseController";
-import type UserRespositoryInterface from "@/repositories/UserRepositoryInterface";
+import type UserRespositoryInterface from "@/repositories/interfaces/UserRepositoryInterface";
 
 @Service()
-class UserController extends BaseController {
-  constructor(@Inject("user") private userRepo: UserRespositoryInterface) {
-    super();
-  }
+class UserController {
+  constructor(@Inject("user") private userRepo: UserRespositoryInterface) {}
 
-  async get(_: NextApiRequest, res: NextApiResponse) {
-    const users = await this.userRepo.all();
-    return res.json(users);
-  }
+  public get = async (req: NextApiRequest, res: NextApiResponse) => {
+    return res.end(req.params.name);
+  };
 }
 
 export default UserController;

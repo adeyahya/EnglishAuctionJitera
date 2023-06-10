@@ -10,6 +10,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AUCTION_STATUS {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum TRANSACTION_TYPE {
+  DEBIT
+  CREDIT
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -17,4 +28,52 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+
+  auctionList     Auction[]
+  bidList         Bid[]
+  transactionList Transaction[]
+}
+
+model Auction {
+  id            String         @id @default(uuid())
+  title         String
+  description   String?
+  startingPrice Decimal
+  status        AUCTION_STATUS
+  timeWindow    Decimal
+  endedAt       DateTime?
+  publishedAt   DateTime?
+  highestBidId  String?
+  userId        String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now())
+
+  bidList Bid[]
+  author  User  @relation(fields: [userId], references: [id])
+}
+
+model Bid {
+  id        String   @id @default(uuid())
+  offer     Decimal
+  userId    String
+  auctionId String
+  createdAt DateTime @default(now())
+
+  author  User    @relation(fields: [userId], references: [id])
+  auction Auction @relation(fields: [auctionId], references: [id])
+}
+
+model Transaction {
+  id            String           @id @default(uuid())
+  type          TRANSACTION_TYPE
+  amount        Decimal
+  referenceType String
+  referenceId   String
+  userId        String
+  createdAt     DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([referenceType])
+  @@index([referenceType, referenceId])
 }
