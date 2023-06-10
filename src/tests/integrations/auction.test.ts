@@ -20,7 +20,7 @@ const auctionData = {
 let cookies: string[] = [];
 let auctionId = "";
 
-describe("Account Test", () => {
+describe("Auction Integration", () => {
   beforeAll(async () => {
     await resetDb();
     cookies = await generateUser(usertest);

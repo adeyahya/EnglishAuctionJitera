@@ -12,7 +12,7 @@ const usertest = {
 
 let cookies: string[] = [];
 
-describe("Account Test", () => {
+describe("Account Integration", () => {
   beforeAll(async () => {
     await resetDb();
     cookies = await generateUser(usertest);
