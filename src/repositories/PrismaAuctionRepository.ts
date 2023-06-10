@@ -106,6 +106,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
     await prisma.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT * from "Auction" WHERE "id"=${id} FOR UPDATE`;
       await tx.$queryRaw`SELECT * from "Transaction" WHERE "userId"=${userId} FOR UPDATE`;
+      await tx.$queryRaw`SELECT * from "Bid" WHERE "userId"=${userId} FOR UPDATE`;
 
       const auction = await tx.auction.findUnique({ where: { id } });
       const latestBid = await tx.bid.findUnique({
