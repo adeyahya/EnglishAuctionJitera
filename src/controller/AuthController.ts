@@ -3,12 +3,12 @@ import { Inject, Service } from "typedi";
 import type UserRespositoryInterface from "@/repositories/UserRepositoryInterface";
 import HttpError from "@/lib/HttpError";
 import {
-  AuthReponseDTO,
+  AuthResponseDTO,
   LoginRequestDTO,
   RegisterRequestDTO,
 } from "@/schema/Auth";
 
-import { ValidateBody, ValidateResponse } from "@/lib/Validator";
+import { Auth, ValidateBody, ValidateResponse } from "@/lib/Validator";
 import { comparePassword, hashPassword } from "@/lib/password";
 
 // errors
@@ -19,12 +19,20 @@ const ErrorInvalidPassword = new HttpError("Invalid password", 400);
 @Service()
 class AuthController {
   constructor(@Inject("user") private userRepo: UserRespositoryInterface) {
+    this.user = this.user.bind(this);
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
   }
 
+  @Auth()
+  @ValidateResponse(AuthResponseDTO)
+  public async user(_: HttpParams, req: ApiRequest) {
+    const user = await this.userRepo.find(req.authUser.id);
+    return user;
+  }
+
   @ValidateBody(LoginRequestDTO)
-  @ValidateResponse(AuthReponseDTO)
+  @ValidateResponse(AuthResponseDTO)
   public async login(params: HttpParams, _: ApiRequest, res: ApiResponse) {
     const user = await this.userRepo.findByEmail(params.body.email);
     if (!user) throw ErrorUserNotFound;
@@ -38,7 +46,7 @@ class AuthController {
   }
 
   @ValidateBody(RegisterRequestDTO)
-  @ValidateResponse(AuthReponseDTO)
+  @ValidateResponse(AuthResponseDTO)
   public async register(params: HttpParams) {
     const existingUser = await this.userRepo.findByEmail(params.body.email);
     if (existingUser) throw ErrorUserExist;

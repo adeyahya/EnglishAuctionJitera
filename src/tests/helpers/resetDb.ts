@@ -4,10 +4,10 @@ const prisma = new PrismaClient();
 
 const resetDb = async () => {
   await prisma.$transaction([
-    prisma.user.deleteMany(),
+    prisma.transaction.deleteMany(),
     prisma.auction.deleteMany(),
     prisma.bid.deleteMany(),
-    prisma.transaction.deleteMany(),
+    prisma.user.deleteMany(),
   ]);
 };
 

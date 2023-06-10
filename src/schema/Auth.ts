@@ -9,7 +9,7 @@ export const LoginRequestDTO = Type.Object({
   }),
 });
 
-export const AuthReponseDTO = Type.Object({
+export const AuthResponseDTO = Type.Object({
   id: Type.String(),
   email: Type.String({
     format: "email",

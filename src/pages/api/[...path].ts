@@ -20,6 +20,7 @@ const auctionController = Container.get(AuctionController);
  */
 router.post("/auth/login", authController.login);
 router.post("/auth/register", authController.register);
+router.get("/auth", authController.user);
 router.get("/auction", auctionController.list);
 router.post("/auction", auctionController.create);
 

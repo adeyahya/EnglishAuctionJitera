@@ -67,7 +67,7 @@ class Router {
         }
       );
 
-      res.setCookie("authToken", token, {
+      res.setCookie("X-SESSION-TOKEN", token, {
         httpOnly: true,
         path: "/",
         maxAge: ms("12h") / 60,
@@ -76,8 +76,8 @@ class Router {
 
     req.verifyAuth = () => {
       try {
-        const { authToken } = cookie.parse(req.headers.cookie ?? "");
-        const payload = jwt.verify(authToken, "secret");
+        const cookies = cookie.parse(req.headers.cookie ?? "");
+        const payload = jwt.verify(cookies["X-SESSION-TOKEN"], "secret");
         if (!payload) throw {};
         req.authUser = payload;
       } catch (error) {
