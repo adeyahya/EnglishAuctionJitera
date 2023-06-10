@@ -10,11 +10,11 @@ CREATE TABLE "Auction" (
     "title" TEXT NOT NULL,
     "description" TEXT,
     "startingPrice" DECIMAL(65,30) NOT NULL,
-    "status" "AUCTION_STATUS" NOT NULL,
+    "timeWindow" DECIMAL(65,30) NOT NULL,
     "endedAt" TIMESTAMP(3),
     "publishedAt" TIMESTAMP(3),
+    "highestBidId" TEXT,
     "userId" TEXT NOT NULL,
-    "bidId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -56,6 +56,9 @@ ALTER TABLE "Auction" ADD CONSTRAINT "Auction_userId_fkey" FOREIGN KEY ("userId"
 
 -- AddForeignKey
 ALTER TABLE "Bid" ADD CONSTRAINT "Bid_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Bid" ADD CONSTRAINT "Bid_auctionId_fkey" FOREIGN KEY ("auctionId") REFERENCES "Auction"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

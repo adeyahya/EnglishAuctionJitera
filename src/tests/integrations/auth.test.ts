@@ -1,6 +1,6 @@
-import resetDb from "../helpers/resetDb";
-import testClient from "../helpers/testClient";
 import { PrismaClient } from "@prisma/client";
+import resetDb from "@/tests/helpers/resetDb";
+import testClient from "@/tests/helpers/testClient";
 
 const prisma = new PrismaClient();
 const request = testClient();
