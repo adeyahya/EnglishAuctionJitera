@@ -18,10 +18,6 @@ describe("Account Test", () => {
     cookies = await generateUser(usertest);
   });
 
-  afterAll(async () => {
-    await resetDb();
-  });
-
   it("Should protected by auth", async () => {
     const res = await request.post("/account/deposit").send({ amount: 100 });
     expect(res.status).toBe(401);

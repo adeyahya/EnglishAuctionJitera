@@ -3,7 +3,7 @@ import { AuctionType, BidType } from "@/schema/Auction";
 
 interface AuctionRepositoryInterface {
   all(): Promise<AuctionType[]>;
-  find(id: string): Promise<Auction>;
+  find(id: string): Promise<AuctionType>;
   create(
     auction: Pick<
       AuctionType,
@@ -11,7 +11,7 @@ interface AuctionRepositoryInterface {
     >
   ): Promise<AuctionType>;
   update(id: string, auction: any): Promise<Auction>;
-  publish(id: string): Promise<Auction>;
+  publish(id: string): Promise<AuctionType>;
   getHighestBid(id: string): Promise<BidType | null>;
   placeOffer(id: string, userId: string, amount: number): Promise<void>;
   getCurrentOffer(id: string): Promise<number>;

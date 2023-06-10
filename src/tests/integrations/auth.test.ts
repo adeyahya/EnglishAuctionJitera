@@ -18,10 +18,6 @@ describe("Auth Integration", () => {
     await resetDb();
   });
 
-  afterAll(async () => {
-    await resetDb();
-  });
-
   it("Should sucessfully register new user", async () => {
     const res = await request.post("/auth/register").send(usertest);
     expect(res.status).toBe(200);

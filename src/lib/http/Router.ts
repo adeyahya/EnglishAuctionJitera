@@ -95,11 +95,11 @@ class Router {
       const httpParams: HttpParams = {
         body: req.body,
         query: req.query,
-        params: req.params,
+        params: {},
       };
 
       if (params) {
-        req.params = params;
+        httpParams.params = params;
         return await handler(httpParams, req, res);
       }
     }

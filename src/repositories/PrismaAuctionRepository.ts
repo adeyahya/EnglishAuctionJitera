@@ -1,6 +1,7 @@
 import AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
 import { Auction, Bid, PrismaClient } from "@prisma/client";
-import { AuctionRequestType, AuctionType, BidType } from "@/schema/Auction";
+import { AuctionRequestType, AuctionType } from "@/schema/Auction";
+import addHours from "date-fns/addHours";
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
   private computeStatus(auction: Auction) {
     if (!auction.publishedAt) return "DRAFT";
     if (!auction.endedAt) return "DRAFT";
-    if (auction.endedAt.getTime() > new Date().getTime()) return "CLOSED";
+    if (auction.endedAt.getTime() < new Date().getTime()) return "CLOSED";
     return "OPEN";
   }
 
@@ -63,20 +64,23 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
     return null;
   }
 
-  public async find(id: string): Promise<Auction> {
+  public async find(id: string): Promise<AuctionType> {
     const auction = await prisma.auction.findUnique({ where: { id } });
     if (!auction) throw new Error("not found");
-    return auction;
+    return this.transformAuction(auction);
   }
 
-  public async publish(id: string): Promise<Auction> {
+  public async publish(id: string): Promise<AuctionType> {
+    const now = new Date();
+    const prevAuction = await this.find(id);
     const auction = await prisma.auction.update({
       where: { id },
       data: {
-        publishedAt: new Date(),
+        endedAt: addHours(now, prevAuction?.timeWindow ?? 0),
+        publishedAt: now,
       },
     });
-    return auction;
+    return this.transformAuction(auction);
   }
 
   public async update(id: string, auction: any): Promise<Auction> {
