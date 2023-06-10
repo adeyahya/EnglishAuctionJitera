@@ -9,6 +9,7 @@ const users = [
   { name: "User 2", email: "user2@test.com", password: "testpassword" },
   { name: "User 3", email: "user3@test.com", password: "testpassword" },
   { name: "User 4", email: "user4@test.com", password: "testpassword" },
+  { name: "User 5", email: "user5@test.com", password: "testpassword" },
 ];
 
 const auctionData = {
@@ -54,11 +55,19 @@ describe("Account Integration", () => {
 
   it("Should be able to bid on starting price", async () => {
     const cookie = cookies[1];
-    const res = await request
-      .post(`/auction/${auctionId}`)
-      .send({ offer: 10 })
-      .set("Cookie", cookie);
-    expect(res.status).toBe(200);
+    const promises = [
+      request
+        .post(`/auction/${auctionId}`)
+        .send({ offer: 10 })
+        .set("Cookie", cookie),
+      request
+        .post(`/auction/${auctionId}`)
+        .send({ offer: 11 })
+        .set("Cookie", cookie),
+    ];
+    const [res1, res2] = await Promise.all(promises);
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(400);
   });
 
   it("Should make sure reserved balance increased", async () => {
@@ -98,5 +107,24 @@ describe("Account Integration", () => {
     const res = await request.get("/account/balance").set("Cookie", cookie);
     expect(res.status).toBe(200);
     expect(res.body.reserved).toEqual(0);
+  });
+
+  it("Should accept bid queue in order", async () => {
+    const cookie4 = cookies[3];
+    const cookie5 = cookies[4];
+
+    const promises = [
+      request
+        .post(`/auction/${auctionId}`)
+        .send({ offer: 20 })
+        .set("Cookie", cookie4),
+      request
+        .post(`/auction/${auctionId}`)
+        .send({ offer: 20 })
+        .set("Cookie", cookie5),
+    ];
+    const [res1, res2] = await Promise.all(promises);
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(400);
   });
 });

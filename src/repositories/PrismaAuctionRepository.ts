@@ -1,9 +1,9 @@
-import AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
-import { Auction, Bid, PrismaClient } from "@prisma/client";
-import { AuctionRequestType, AuctionType } from "@/schema/Auction";
 import addHours from "date-fns/addHours";
 import differenceInSeconds from "date-fns/differenceInSeconds";
-import { ErrorInsufficientOffer } from "@/lib/HttpError";
+import { Auction, Bid, PrismaClient } from "@prisma/client";
+import AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
+import { AuctionRequestType, AuctionType } from "@/schema/Auction";
+import { ErrorInsufficientOffer, ErrorInvalidDelay } from "@/lib/HttpError";
 
 const prisma = new PrismaClient();
 
@@ -104,6 +104,9 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
 
   public async placeOffer(id: string, userId: string, amount: number) {
     await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT * from "Auction" WHERE "id"=${id} FOR UPDATE`;
+      await tx.$queryRaw`SELECT * from "Transaction" WHERE "userId"=${userId} FOR UPDATE`;
+
       const auction = await tx.auction.findUnique({ where: { id } });
       const latestBid = await tx.bid.findUnique({
         where: { id: auction!.highestBidId ?? "" },
@@ -128,8 +131,8 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
           myLastOfferAt.createdAt,
           new Date()
         );
-        if (diffSec < 60 * 5) {
-          throw new Error("too fast, be patient");
+        if (diffSec < 5) {
+          throw ErrorInvalidDelay;
         }
       }
 
@@ -155,7 +158,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
         (balance._sum.amount?.toNumber() ?? 0) -
         +(reservedBalance?.[0]?.reserved ?? "0");
 
-      if (amount > availableBalance) throw new Error("Insufficient Balance");
+      if (amount > availableBalance) throw ErrorInsufficientOffer;
 
       const newBid = await tx.bid.create({
         data: { userId, offer: amount, auctionId: id },

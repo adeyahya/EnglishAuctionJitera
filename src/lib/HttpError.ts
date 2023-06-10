@@ -13,11 +13,12 @@ export const ErrorNegativeAmount = new HttpError(
   400
 );
 export const ErrorInvalidAuctionState = new HttpError(
-  "auction state invalid",
+  "Auction state invalid",
   400
 );
-export const ErrorInvalidBid = new HttpError("invalid bid", 400);
-export const ErrorNotEnoughBalance = new HttpError("not enough balance", 400);
-export const ErrorInsufficientOffer = new HttpError("not enough balance", 400);
+export const ErrorInvalidBid = new HttpError("Invalid bid", 400);
+export const ErrorNotEnoughBalance = new HttpError("Not enough balance", 400);
+export const ErrorInsufficientOffer = new HttpError("Insufficient offer", 400);
+export const ErrorInvalidDelay = new HttpError("Too Fast!", 400);
 
 export default HttpError;
