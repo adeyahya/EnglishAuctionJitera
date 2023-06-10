@@ -2,6 +2,8 @@ import AuctionRepositoryInterface from "@/repositories/interfaces/AuctionReposit
 import { Auction, Bid, PrismaClient } from "@prisma/client";
 import { AuctionRequestType, AuctionType } from "@/schema/Auction";
 import addHours from "date-fns/addHours";
+import differenceInSeconds from "date-fns/differenceInSeconds";
+import { ErrorInsufficientOffer } from "@/lib/HttpError";
 
 const prisma = new PrismaClient();
 
@@ -101,53 +103,69 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
   }
 
   public async placeOffer(id: string, userId: string, amount: number) {
-    // await prisma.$transaction(async (tx) => {
-    //   const auction = await tx.auction.findUnique({ where: { id } });
-    //   const latestBid = await tx.bid.findFirst({
-    //     where: { id: auction!.bidId ?? "" },
-    //   });
-    //   const latestOffer = latestBid?.offer ?? auction!.startingPrice;
-    //   if (amount <= latestOffer.toNumber()) {
-    //     throw new Error("Insufficient Offer");
-    //   }
-    //   const myLastOfferAt = await tx.bid.findFirst({
-    //     where: { auctionId: id, userId },
-    //     select: { createdAt: true },
-    //   });
-    //   if (myLastOfferAt?.createdAt) {
-    //     const diffSec = differenceInSeconds(
-    //       myLastOfferAt.createdAt,
-    //       new Date()
-    //     );
-    //     if (diffSec < 60 * 5) {
-    //       throw new Error("too fast, be patient");
-    //     }
-    //   }
-    //   const balance = await tx.transaction.aggregate({
-    //     where: {
-    //       userId,
-    //     },
-    //     _sum: {
-    //       amount: true,
-    //     },
-    //   });
-    //   const reservedBalance = await tx.$queryRaw<{ reserved: string }[]>`
-    //       SELECT COALESCE(SUM(bid.offer), 0) as reserved
-    //       FROM "Bid" AS bid
-    //       JOIN "Auction" AS auction
-    //         ON bid."auctionId" = auction."id"
-    //         AND auction."bidId" = bid."id"
-    //       WHERE auction."status" = 'OPEN'
-    //         AND bid."userId" = ${userId};`;
-    //   const availableBalance =
-    //     (balance._sum.amount?.toNumber() ?? 0) -
-    //     +(reservedBalance?.[0]?.reserved ?? "0");
-    //   if (amount > availableBalance) throw new Error("Insufficient Balance");
-    //   const newBid = await tx.bid.create({
-    //     data: { userId, offer: amount, auctionId: id },
-    //   });
-    //   await tx.auction.update({ where: { id }, data: { bidId: newBid.id } });
-    // });
+    await prisma.$transaction(async (tx) => {
+      const auction = await tx.auction.findUnique({ where: { id } });
+      const latestBid = await tx.bid.findUnique({
+        where: { id: auction!.highestBidId ?? "" },
+      });
+      const startingPrice = auction?.startingPrice.toNumber() ?? 0;
+
+      if (latestBid && latestBid.offer.toNumber() >= amount) {
+        throw ErrorInsufficientOffer;
+      }
+
+      if (amount < startingPrice) {
+        throw ErrorInsufficientOffer;
+      }
+
+      const myLastOfferAt = await tx.bid.findFirst({
+        where: { auctionId: id, userId },
+        select: { createdAt: true },
+      });
+
+      if (myLastOfferAt?.createdAt) {
+        const diffSec = differenceInSeconds(
+          myLastOfferAt.createdAt,
+          new Date()
+        );
+        if (diffSec < 60 * 5) {
+          throw new Error("too fast, be patient");
+        }
+      }
+
+      const balance = await tx.transaction.aggregate({
+        where: {
+          userId,
+        },
+        _sum: {
+          amount: true,
+        },
+      });
+
+      const reservedBalance = await tx.$queryRaw<{ reserved: string }[]>`
+        SELECT COALESCE(SUM(bid.offer), 0) as reserved
+        FROM "Bid" AS bid
+        JOIN "Auction" AS auction
+          ON bid."auctionId" = auction."id"
+          AND auction."highestBidId" = bid."id"
+        WHERE auction."endedAt" < NOW()
+          AND bid."userId" = ${userId};`;
+
+      const availableBalance =
+        (balance._sum.amount?.toNumber() ?? 0) -
+        +(reservedBalance?.[0]?.reserved ?? "0");
+
+      if (amount > availableBalance) throw new Error("Insufficient Balance");
+
+      const newBid = await tx.bid.create({
+        data: { userId, offer: amount, auctionId: id },
+      });
+
+      await tx.auction.update({
+        where: { id },
+        data: { highestBidId: newBid.id },
+      });
+    });
   }
 }
 

@@ -26,9 +26,11 @@ router.get("/auth", authController.user);
 
 router.post("/auction/:id/publish", auctionController.publish);
 router.get("/auction/:id", auctionController.view);
+router.post("/auction/:id", auctionController.offer);
 router.post("/auction", auctionController.create);
 
 router.post("/account/deposit", accountController.deposit);
+router.get("/account/balance", accountController.balance);
 
 const handler = async (req: ApiRequest, res: ApiResponse) => {
   try {

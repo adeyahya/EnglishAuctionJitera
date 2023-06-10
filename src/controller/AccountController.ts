@@ -11,6 +11,7 @@ class AccountController {
     private accountRepo: AccountRepositoryInterface
   ) {
     this.deposit = this.deposit.bind(this);
+    this.balance = this.balance.bind(this);
   }
 
   @Auth()
@@ -20,6 +21,12 @@ class AccountController {
     const { amount } = params.body;
     if (amount <= 0) throw ErrorNegativeAmount;
     await this.accountRepo.deposit(req.authUser.id, amount);
+    return await this.accountRepo.balance(req.authUser.id);
+  }
+
+  @Auth()
+  @ValidateResponse(BalanceDTO)
+  public async balance(_: HttpParams, req: ApiRequest) {
     return await this.accountRepo.balance(req.authUser.id);
   }
 }

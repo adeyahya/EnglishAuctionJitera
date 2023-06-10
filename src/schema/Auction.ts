@@ -35,3 +35,5 @@ export const BidDTO = Type.Object({
   createdAt: Type.Date(),
 });
 export type BidType = Static<typeof BidDTO>;
+
+export const BidRequestDTO = Type.Pick(BidDTO, ["offer"]);

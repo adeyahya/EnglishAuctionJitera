@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 const resetDb = async () => {
   await prisma.$transaction([
     prisma.transaction.deleteMany(),
-    prisma.auction.deleteMany(),
     prisma.bid.deleteMany(),
+    prisma.auction.deleteMany(),
     prisma.user.deleteMany(),
   ]);
 };
