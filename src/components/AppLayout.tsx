@@ -4,9 +4,12 @@ import {
   Button,
   HStack,
   Heading,
-  Text,
   Avatar,
   Container,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useContext } from "react";
@@ -27,11 +30,20 @@ const AppLayout = (props: { children: React.ReactNode }) => {
               {context.isAuthenticated ? (
                 <>
                   <Balance />
-                  <Avatar
-                    cursor="pointer"
-                    size="sm"
-                    name={context.user?.name}
-                  />
+                  <Menu>
+                    <MenuButton cursor="pointer" as={Box}>
+                      <Avatar
+                        cursor="pointer"
+                        size="sm"
+                        name={context.user?.name}
+                      />
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem>Create New Item</MenuItem>
+                      <MenuItem>Deposit</MenuItem>
+                      <MenuItem>Logout</MenuItem>
+                    </MenuList>
+                  </Menu>
                 </>
               ) : (
                 <Link href="/login">
