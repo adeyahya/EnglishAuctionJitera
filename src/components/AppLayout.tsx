@@ -1,0 +1,50 @@
+import { AppContext } from "@/context/AppContext";
+import {
+  Box,
+  Button,
+  HStack,
+  Heading,
+  Text,
+  Avatar,
+  Container,
+} from "@chakra-ui/react";
+import Link from "next/link";
+import { useContext } from "react";
+import Balance from "@/components/Balance";
+
+const AppLayout = (props: { children: React.ReactNode }) => {
+  const context = useContext(AppContext);
+
+  return (
+    <Box as="main">
+      <Box as="nav" bg="gray.100" py="2">
+        <Container maxW="6xl">
+          <HStack position="sticky" top="0" left="0" justify="space-between">
+            <Box>
+              <Heading size="md">English Auction</Heading>
+            </Box>
+            <HStack align="center" justify="end">
+              {context.isAuthenticated ? (
+                <>
+                  <Balance />
+                  <Avatar
+                    cursor="pointer"
+                    size="sm"
+                    name={context.user?.name}
+                  />
+                </>
+              ) : (
+                <Link href="/login">
+                  <Button colorScheme="blue">Login</Button>
+                </Link>
+              )}
+            </HStack>
+          </HStack>
+        </Container>
+      </Box>
+      <Container maxW="6xl">{props.children}</Container>
+    </Box>
+  );
+};
+
+export default AppLayout;

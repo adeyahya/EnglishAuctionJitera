@@ -1,7 +1,7 @@
-import { AuthType } from "@/schema/Auth";
-import { Box, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { createContext, useState, useCallback, useEffect, useRef } from "react";
+import { AuthType } from "@/schema/Auth";
+import { Box, Spinner } from "@chakra-ui/react";
 
 type ContextType = {
   isAuthenticated: boolean;
