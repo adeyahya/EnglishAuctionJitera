@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { create, useModal } from "@ebay/nice-modal-react";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 const ModalAddDeposit = create(() => {
@@ -24,6 +25,7 @@ const ModalAddDeposit = create(() => {
   const {
     register,
     formState: { errors },
+    reset,
     handleSubmit,
   } = useForm<DepositRequestType>({
     resolver: typeboxResolver(DepositRequestDTO),
@@ -36,6 +38,10 @@ const ModalAddDeposit = create(() => {
     await mutateAsync(data);
     modal.hide();
   });
+
+  useEffect(() => {
+    if (!modal.visible) reset({ amount: 0 });
+  }, [modal.visible, reset]);
 
   return (
     <Modal isOpen={modal.visible} onClose={modal.hide}>
@@ -56,7 +62,12 @@ const ModalAddDeposit = create(() => {
           </FormControl>
         </ModalBody>
         <ModalFooter>
-          <Button mr="2" variant="outline" colorScheme="red">
+          <Button
+            onClick={modal.hide}
+            mr="2"
+            variant="outline"
+            colorScheme="red"
+          >
             Cancel
           </Button>
           <Button isLoading={isLoading} type="submit" colorScheme="blue">
