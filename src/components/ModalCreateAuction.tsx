@@ -1,9 +1,10 @@
-import useMutateDeposit from "@/hooks/useMutateDeposit";
-import { DepositRequestDTO, DepositRequestType } from "@/schema/Account";
+import useMutateCreateAuction from "@/hooks/useMutateCreateAuction";
+import { AuctionRequestDTO, AuctionRequestType } from "@/schema/Auction";
 import {
   Button,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   Input,
   Modal,
@@ -20,18 +21,18 @@ import { typeboxResolver } from "@hookform/resolvers/typebox";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-const ModalAddDeposit = create(() => {
+const ModalCreateAuction = create(() => {
   const modal = useModal();
-  const { mutateAsync, isLoading } = useMutateDeposit();
+  const { mutateAsync, isLoading } = useMutateCreateAuction();
   const {
     register,
     formState: { errors },
     reset,
     handleSubmit,
-  } = useForm<DepositRequestType>({
-    resolver: typeboxResolver(DepositRequestDTO),
+  } = useForm<AuctionRequestType>({
+    resolver: typeboxResolver(AuctionRequestDTO),
     defaultValues: {
-      amount: 0,
+      timeWindow: 1,
     },
   });
 
@@ -41,7 +42,7 @@ const ModalAddDeposit = create(() => {
   });
 
   useEffect(() => {
-    if (!modal.visible) reset({ amount: 0 });
+    if (!modal.visible) reset();
   }, [modal.visible, reset]);
 
   return (
@@ -49,18 +50,36 @@ const ModalAddDeposit = create(() => {
       <ModalOverlay />
       <ModalContent as="form" onSubmit={onSubmit}>
         <ModalHeader>
-          Add Deposit
+          Create Auction
           <ModalCloseButton />
         </ModalHeader>
         <ModalBody>
           <Stack>
-            <FormControl isInvalid={!!errors.amount}>
-              <FormLabel>Deposit Amount</FormLabel>
+            <FormControl isInvalid={!!errors.title}>
+              <FormLabel>Title</FormLabel>
+              <Input {...register("title")} />
+              <FormErrorMessage>{errors.title?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.startingPrice}>
+              <FormLabel>Staring Price</FormLabel>
               <Input
                 type="number"
-                {...register("amount", { valueAsNumber: true })}
+                {...register("startingPrice", { valueAsNumber: true })}
               />
-              <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
+              <FormErrorMessage>
+                {errors.startingPrice?.message}
+              </FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.timeWindow}>
+              <FormLabel>Time Window</FormLabel>
+              <Input
+                type="number"
+                {...register("timeWindow", { valueAsNumber: true })}
+              />
+              <FormHelperText>
+                How many hours this auction need to be runs?
+              </FormHelperText>
+              <FormErrorMessage>{errors.timeWindow?.message}</FormErrorMessage>
             </FormControl>
           </Stack>
         </ModalBody>
@@ -82,4 +101,4 @@ const ModalAddDeposit = create(() => {
   );
 });
 
-export default ModalAddDeposit;
+export default ModalCreateAuction;

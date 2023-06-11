@@ -16,10 +16,12 @@ import { useContext } from "react";
 import Balance from "@/components/Balance";
 import { useModal } from "@ebay/nice-modal-react";
 import ModalAddDeposit from "@/components/ModalAddDeposit";
+import ModalCreateAuction from "@/components/ModalCreateAuction";
 
 const AppLayout = (props: { children: React.ReactNode }) => {
   const context = useContext(AppContext);
   const addDepositModal = useModal(ModalAddDeposit);
+  const createAuctionModal = useModal(ModalCreateAuction);
 
   return (
     <Box as="main">
@@ -42,7 +44,9 @@ const AppLayout = (props: { children: React.ReactNode }) => {
                       />
                     </MenuButton>
                     <MenuList>
-                      <MenuItem>Create New Item</MenuItem>
+                      <MenuItem onClick={() => createAuctionModal.show()}>
+                        Create New Item
+                      </MenuItem>
                       <MenuItem onClick={() => addDepositModal.show()}>
                         Deposit
                       </MenuItem>
