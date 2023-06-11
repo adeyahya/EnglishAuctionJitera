@@ -2,11 +2,7 @@ import { Inject, Service } from "typedi";
 
 import type UserRespositoryInterface from "@/repositories/interfaces/UserRepositoryInterface";
 import HttpError from "@/lib/HttpError";
-import {
-  AuthResponseDTO,
-  LoginRequestDTO,
-  RegisterRequestDTO,
-} from "@/schema/Auth";
+import { AuthDTO, LoginRequestDTO, RegisterRequestDTO } from "@/schema/Auth";
 
 import { Auth, ValidateBody, ValidateResponse } from "@/lib/Validator";
 import { comparePassword, hashPassword } from "@/lib/password";
@@ -25,14 +21,14 @@ class AuthController {
   }
 
   @Auth()
-  @ValidateResponse(AuthResponseDTO)
+  @ValidateResponse(AuthDTO)
   public async user(_: HttpParams, req: ApiRequest) {
     const user = await this.userRepo.find(req.authUser.id);
     return user;
   }
 
   @ValidateBody(LoginRequestDTO)
-  @ValidateResponse(AuthResponseDTO)
+  @ValidateResponse(AuthDTO)
   public async login(params: HttpParams, _: ApiRequest, res: ApiResponse) {
     const user = await this.userRepo.findByEmail(params.body.email);
     if (!user) throw ErrorUserNotFound;
@@ -46,7 +42,7 @@ class AuthController {
   }
 
   @ValidateBody(RegisterRequestDTO)
-  @ValidateResponse(AuthResponseDTO)
+  @ValidateResponse(AuthDTO)
   public async register(params: HttpParams) {
     const existingUser = await this.userRepo.findByEmail(params.body.email);
     if (existingUser) throw ErrorUserExist;

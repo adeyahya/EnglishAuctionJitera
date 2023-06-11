@@ -10,13 +10,14 @@ export const LoginRequestDTO = Type.Object({
 });
 export type LoginRequestType = Static<typeof LoginRequestDTO>;
 
-export const AuthResponseDTO = Type.Object({
+export const AuthDTO = Type.Object({
   id: Type.String(),
   email: Type.String({
     pattern: "^\\S+@\\S+\\.\\S+$",
   }),
   name: Type.String(),
 });
+export type AuthType = Static<typeof AuthDTO>;
 
 export const RegisterRequestDTO = Type.Object({
   email: Type.String({
@@ -27,3 +28,4 @@ export const RegisterRequestDTO = Type.Object({
   }),
   name: Type.String(),
 });
+export type RegisterRequestType = Static<typeof RegisterRequestDTO>;

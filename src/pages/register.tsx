@@ -1,4 +1,4 @@
-import { LoginRequestDTO, LoginRequestType } from "@/schema/Auth";
+import { RegisterRequestDTO, RegisterRequestType } from "@/schema/Auth";
 import {
   Container,
   Stack,
@@ -15,22 +15,28 @@ import {
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
-import useMutateLogin from "@/hooks/useMutateLogin";
+import useMutateRegister from "@/hooks/useMutateRegister";
+import { useState } from "react";
 import Link from "next/link";
 
 const LoginPage = () => {
   const {
     register,
+    watch,
     formState: { errors },
     handleSubmit,
-  } = useForm<LoginRequestType>({
-    resolver: typeboxResolver(LoginRequestDTO as any),
+  } = useForm<RegisterRequestType>({
+    resolver: typeboxResolver(RegisterRequestDTO),
   });
-  const { mutate, isLoading, error } = useMutateLogin();
+  const password = watch("password");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const { mutate, isLoading, error } = useMutateRegister();
   const errorMessage = (error as any)?.response?.data?.message;
   const onSubmit = handleSubmit((data) => {
     mutate(data);
   });
+  const isIncorrectPasswordConfirmation =
+    password && passwordConfirmation && password !== passwordConfirmation;
 
   return (
     <Container as="form" maxW="xl" pt="44" onSubmit={onSubmit}>
@@ -45,6 +51,11 @@ const LoginPage = () => {
             {errorMessage}
           </Alert>
         ) : null}
+        <FormControl isInvalid={!!errors.name}>
+          <FormLabel>Name</FormLabel>
+          <Input {...register("name")} />
+          <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+        </FormControl>
         <FormControl isInvalid={!!errors.email}>
           <FormLabel>Email</FormLabel>
           <Input type="email" {...register("email")} />
@@ -55,13 +66,31 @@ const LoginPage = () => {
           <Input type="password" {...register("password")} />
           <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
         </FormControl>
+        <FormControl isInvalid={!!isIncorrectPasswordConfirmation}>
+          <FormLabel>Password Confirmation</FormLabel>
+          <Input
+            type="password"
+            value={passwordConfirmation}
+            onChange={(e) => {
+              setPasswordConfirmation(e.target.value);
+            }}
+          />
+          <FormErrorMessage>Invalid Password Confirmation</FormErrorMessage>
+        </FormControl>
       </Stack>
       <Stack mt="6">
-        <Button isLoading={isLoading} type="submit" colorScheme="blue">
-          Login
+        <Button
+          isDisabled={
+            !!isIncorrectPasswordConfirmation || !passwordConfirmation
+          }
+          isLoading={isLoading}
+          type="submit"
+          colorScheme="blue"
+        >
+          Register
         </Button>
-        <Link href="/register">
-          <Button w="full">Register</Button>
+        <Link href="/login">
+          <Button w="full">Login</Button>
         </Link>
       </Stack>
     </Container>
