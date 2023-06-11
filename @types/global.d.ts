@@ -8,6 +8,20 @@ declare module "next" {
   }
 }
 
+declare module "@hookform/resolvers/ajv" {
+  export type Resolver = <T>(
+    schema: any,
+    schemaOptions?: Ajv.Options,
+    factoryOptions?: {
+      mode?: "async" | "sync";
+    }
+  ) => <TFieldValues extends FieldValues, TContext>(
+    values: TFieldValues,
+    context: TContext | undefined,
+    options: ResolverOptions<TFieldValues>
+  ) => Promise<ResolverResult<TFieldValues>>;
+}
+
 declare global {
   /*~ Here, declare things that go in the global namespace, or augment
    *~ existing declarations in the global namespace

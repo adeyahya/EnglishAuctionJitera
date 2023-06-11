@@ -1,15 +1,11 @@
 import { User } from "@prisma/client";
-
-export type LoginRequestDTO = {
-  email: string;
-  password: string;
-};
+import { LoginRequestType } from "@/schema/Auth";
 
 export type RegisterRequestDTO = Omit<User, "id" | "createdAt" | "updatedAt">;
 export type RegisterDTO = Omit<User, "password">;
 
 interface AuthRepositoryInterface {
-  login(params: LoginRequestDTO): Promise<string>;
+  login(params: LoginRequestType): Promise<string>;
   register(params: RegisterRequestDTO): Promise<RegisterDTO>;
 }
 

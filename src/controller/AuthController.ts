@@ -13,7 +13,7 @@ import { comparePassword, hashPassword } from "@/lib/password";
 
 // errors
 const ErrorUserExist = new HttpError("User Already Exist");
-const ErrorUserNotFound = new HttpError("User Not Found", 404);
+const ErrorUserNotFound = new HttpError("User Not Found", 401);
 const ErrorInvalidPassword = new HttpError("Invalid password", 400);
 
 @Service()
