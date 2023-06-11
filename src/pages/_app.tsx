@@ -1,9 +1,10 @@
+import axios from "axios";
 import type { AppProps } from "next/app";
 import { useState } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
-import axios from "axios";
+import AppContextProvider from "@/context/AppContext";
 
 axios.defaults.withCredentials = true;
 
@@ -14,7 +15,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <Hydrate state={pageProps.dehydratedState}>
         <ChakraProvider>
-          <Component {...pageProps} />
+          <AppContextProvider>
+            <Component {...pageProps} />
+          </AppContextProvider>
         </ChakraProvider>
       </Hydrate>
       <ReactQueryDevtools />
