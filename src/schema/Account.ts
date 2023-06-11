@@ -1,7 +1,9 @@
 import { Static, Type } from "@sinclair/typebox";
 
 export const DepositRequestDTO = Type.Object({
-  amount: Type.Number({}),
+  amount: Type.Number({
+    exclusiveMinimum: 0,
+  }),
 });
 export type DepositRequestType = Static<typeof DepositRequestDTO>;
 

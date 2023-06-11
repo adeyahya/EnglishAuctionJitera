@@ -5,6 +5,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import AppContextProvider from "@/context/AppContext";
+import NiceModal from "@ebay/nice-modal-react";
 
 axios.defaults.withCredentials = true;
 
@@ -16,7 +17,9 @@ export default function App({ Component, pageProps }: AppProps) {
       <Hydrate state={pageProps.dehydratedState}>
         <ChakraProvider>
           <AppContextProvider>
-            <Component {...pageProps} />
+            <NiceModal.Provider>
+              <Component {...pageProps} />
+            </NiceModal.Provider>
           </AppContextProvider>
         </ChakraProvider>
       </Hydrate>
