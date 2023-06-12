@@ -10,6 +10,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Portal,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useContext } from "react";
@@ -43,15 +44,17 @@ const AppLayout = (props: { children: React.ReactNode }) => {
                         name={context.user?.name}
                       />
                     </MenuButton>
-                    <MenuList>
-                      <MenuItem onClick={() => createAuctionModal.show()}>
-                        Create New Item
-                      </MenuItem>
-                      <MenuItem onClick={() => addDepositModal.show()}>
-                        Deposit
-                      </MenuItem>
-                      <MenuItem>Logout</MenuItem>
-                    </MenuList>
+                    <Portal>
+                      <MenuList>
+                        <MenuItem onClick={() => createAuctionModal.show()}>
+                          Create New Item
+                        </MenuItem>
+                        <MenuItem onClick={() => addDepositModal.show()}>
+                          Deposit
+                        </MenuItem>
+                        <MenuItem>Logout</MenuItem>
+                      </MenuList>
+                    </Portal>
                   </Menu>
                 </>
               ) : (
