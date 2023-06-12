@@ -23,6 +23,7 @@ const AuctionRow = (props: Props) => {
   const isClosed = data.status === "CLOSED";
   const isOpenAndCanBid =
     data.status === "OPEN" && context.user && context.user.id !== data.userId;
+  const currentPrice = data.bidList?.[0]?.offer ?? data.startingPrice;
 
   useEffect(() => {
     const duration = durationRef.current;
@@ -50,7 +51,7 @@ const AuctionRow = (props: Props) => {
   return (
     <Tr key={data.id}>
       <Td>{data.title}</Td>
-      <Td>{formatCurrency(data.startingPrice)}</Td>
+      <Td>{formatCurrency(currentPrice)}</Td>
       <Td>
         <Text ref={durationRef} />
       </Td>
