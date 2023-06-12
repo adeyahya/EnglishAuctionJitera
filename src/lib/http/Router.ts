@@ -75,14 +75,7 @@ class Router {
     };
 
     req.verifyAuth = () => {
-      try {
-        const cookies = cookie.parse(req.headers.cookie ?? "");
-        const payload = jwt.verify(cookies["X-SESSION-TOKEN"], "secret");
-        if (!payload) throw {};
-        req.authUser = payload;
-      } catch (error) {
-        throw ErrorUnauthorized;
-      }
+      if (!req.authUser) throw ErrorUnauthorized;
     };
 
     const patterns = Array.from(
@@ -97,6 +90,14 @@ class Router {
         query: req.query,
         params: {},
       };
+
+      // inject authenticated user if any
+      try {
+        const cookies = cookie.parse(req.headers.cookie ?? "");
+        const payload = jwt.verify(cookies["X-SESSION-TOKEN"], "secret");
+        if (!payload) throw {};
+        req.authUser = payload;
+      } catch (err) {}
 
       if (params) {
         httpParams.params = params;

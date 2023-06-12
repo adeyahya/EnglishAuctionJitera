@@ -1,6 +1,9 @@
 import AppLayout from "@/components/AppLayout";
+import useAuctionList from "@/hooks/useAuctionList";
 
 export default function Home() {
+  const { data } = useAuctionList();
+  console.log(data);
   return (
     <AppLayout>
       <p>

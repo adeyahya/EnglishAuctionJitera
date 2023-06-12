@@ -1,8 +1,8 @@
 import { Auction } from "@prisma/client";
-import { AuctionType, BidType } from "@/schema/Auction";
+import { AuctionType, AuctionWithBidType, BidType } from "@/schema/Auction";
 
 interface AuctionRepositoryInterface {
-  all(): Promise<AuctionType[]>;
+  all(userId?: string): Promise<AuctionWithBidType[]>;
   find(id: string): Promise<AuctionType>;
   create(
     auction: Pick<

@@ -37,3 +37,9 @@ export const BidDTO = Type.Object({
 export type BidType = Static<typeof BidDTO>;
 
 export const BidRequestDTO = Type.Pick(BidDTO, ["offer"]);
+
+export const AuctionWithBidDTO = Type.Object({
+  ...AuctionDTO.properties,
+  bidList: Type.Array(BidDTO),
+});
+export type AuctionWithBidType = Static<typeof AuctionWithBidDTO>;

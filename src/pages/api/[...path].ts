@@ -28,6 +28,7 @@ router.post("/auction/:id/publish", auctionController.publish);
 router.get("/auction/:id", auctionController.view);
 router.post("/auction/:id", auctionController.offer);
 router.post("/auction", auctionController.create);
+router.get("/auction", auctionController.all);
 
 router.post("/account/deposit", accountController.deposit);
 router.get("/account/balance", accountController.balance);

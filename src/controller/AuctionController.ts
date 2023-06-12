@@ -6,7 +6,13 @@ import {
 import { Auth, ValidateBody, ValidateResponse } from "@/lib/Validator";
 import type AccountRepositoryInterface from "@/repositories/interfaces/AccountRepositoryInterface";
 import type AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
-import { AuctionDTO, AuctionRequestDTO, BidRequestDTO } from "@/schema/Auction";
+import {
+  AuctionDTO,
+  AuctionRequestDTO,
+  AuctionWithBidDTO,
+  BidRequestDTO,
+} from "@/schema/Auction";
+import { Type } from "@sinclair/typebox";
 import { Inject, Service } from "typedi";
 
 @Service()
@@ -19,6 +25,13 @@ class AuctionController {
     this.publish = this.publish.bind(this);
     this.view = this.view.bind(this);
     this.offer = this.offer.bind(this);
+    this.all = this.all.bind(this);
+  }
+
+  @ValidateResponse(Type.Array(AuctionWithBidDTO))
+  public async all(_: HttpParams, req: ApiRequest) {
+    const userId = req.authUser?.id;
+    return await this.auctionRepo.all(userId);
   }
 
   @Auth()
@@ -42,7 +55,11 @@ class AuctionController {
     const auction = await this.auctionRepo.find(id);
 
     // lazily close auction on view
-    if (auction.endedAt && auction.endedAt.getTime() < new Date().getTime()) {
+    if (
+      auction.endedAt &&
+      auction.endedAt.getTime() < new Date().getTime() &&
+      auction.status !== "CLOSED"
+    ) {
       return await this.auctionRepo.close(id);
     }
     return auction;
