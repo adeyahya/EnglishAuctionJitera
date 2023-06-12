@@ -1,6 +1,33 @@
 # English Auction
 **English Auction** is web project fully written in Typescript where users can authenticate and create multiple auctions, set the duration of the auction and the other users can bid for the given item. When the auction ends the user with highest bid wins the item.
 
+## Getting Started
+### System Requirements
+1. Node.JS ^18.0.0
+2. PostgreSQL
+
+### Running Development
+1. Make sure you create .env file based on .env.example
+2. Provide valid `DATABASE_URL`
+3. Install dependencies
+
+```bash
+npm install
+```
+
+4. Run database migration
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+5. Run development server
+
+```bash
+npm run dev
+```
+
 ## Database Diagram
 
 <img src="documents/assets/erd.svg"></img>
