@@ -45,6 +45,7 @@ declare global {
       value: string,
       opts?: CookieSerializeOptions
     ) => void;
+    broadcastMessage: (message: string, payload: any) => void;
     /**
      * automatically generate jwt token and inject it to cookie
      * using httpOnly and secure mode. it will be compatible

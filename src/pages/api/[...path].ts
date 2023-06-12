@@ -5,6 +5,8 @@ import Router from "@/lib/http/Router";
 import AuthController from "@/controller/AuthController";
 import AuctionController from "@/controller/AuctionController";
 import AccountController from "@/controller/AccountController";
+import { Server, Socket } from "socket.io";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 const router = new Router();
 
@@ -33,7 +35,35 @@ router.get("/auction", auctionController.all);
 router.post("/account/deposit", accountController.deposit);
 router.get("/account/balance", accountController.balance);
 
+type SocketMap = Map<
+  string,
+  Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+>;
+Container.set("socketMap", new Map());
+
 const handler = async (req: ApiRequest, res: ApiResponse) => {
+  const _res: any = res;
+  if (!_res.socket?.server?.io) {
+    const io = new Server(_res.socket.server);
+    _res.socket.server.io = io;
+
+    io.on("connection", (socket) => {
+      const socketMap: SocketMap = Container.get("socketMap");
+      socketMap.set(socket.id, socket);
+      socket.on("disconnect", () => {
+        socketMap.delete(socket.id);
+      });
+    });
+  }
+  if (req.query.path?.[0] === "socket") return res.end();
+
+  res.broadcastMessage = (message: string, payload: any) => {
+    const socketMap: SocketMap = Container.get("socketMap");
+    Array.from(socketMap).forEach(([, socket]) => {
+      socket.broadcast.emit(message, payload);
+    });
+  };
+
   try {
     const responseObject = await router.eval(req, res);
     return res.json(responseObject);

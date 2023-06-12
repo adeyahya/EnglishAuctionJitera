@@ -44,16 +44,18 @@ class AuctionController {
 
   @Auth()
   @ValidateResponse(AuctionWithBidDTO)
-  public async publish(params: HttpParams, req: ApiRequest) {
+  public async publish(params: HttpParams, req: ApiRequest, res: ApiResponse) {
     const id = params.params.id;
     const auction = await this.auctionRepo.find(id);
     if (auction.userId !== req.authUser.id || auction.status !== "DRAFT")
       throw ErrorUnauthorized;
-    return await this.auctionRepo.publish(id);
+    const result = await this.auctionRepo.publish(id);
+    res.broadcastMessage("auction", result);
+    return result;
   }
 
   @ValidateResponse(AuctionWithBidDTO)
-  public async view(params: HttpParams) {
+  public async view(params: HttpParams, _: ApiRequest, res: ApiResponse) {
     const id = params.params.id;
     const auction = await this.auctionRepo.find(id);
 
@@ -63,7 +65,9 @@ class AuctionController {
       auction.endedAt.getTime() < new Date().getTime() &&
       auction.status !== "CLOSED"
     ) {
-      return await this.auctionRepo.close(id);
+      const result = await this.auctionRepo.close(id);
+      res.broadcastMessage("auction", result);
+      return result;
     }
     return auction;
   }
@@ -71,19 +75,13 @@ class AuctionController {
   @Auth()
   @ValidateBody(BidRequestDTO)
   @ValidateResponse(AuctionWithBidDTO)
-  public async offer(params: HttpParams, req: ApiRequest) {
+  public async offer(params: HttpParams, req: ApiRequest, res: ApiResponse) {
     const id = params.params.id;
     const userId = req.authUser.id;
     const { offer } = params.body;
     // make sure it's only offer the auction that in state OPEN
     const auction = await this.auctionRepo.find(id);
     if (auction.status !== "OPEN") throw ErrorInvalidAuctionState;
-
-    // lazily close auction on offer
-    if (auction.endedAt && auction.endedAt.getTime() < new Date().getTime()) {
-      await this.auctionRepo.close(id);
-      throw ErrorInvalidAuctionState;
-    }
 
     // make sure it's not offering it's own auction
     if (auction.userId === userId) throw ErrorInvalidBid;
@@ -94,7 +92,9 @@ class AuctionController {
     if (availableBalance < offer) throw ErrorNotEnoughBalance;
 
     await this.auctionRepo.placeOffer(id, userId, offer);
-    return await this.auctionRepo.find(id);
+    const result = await this.auctionRepo.find(id);
+    res.broadcastMessage("auction", result);
+    return result;
   }
 }
 

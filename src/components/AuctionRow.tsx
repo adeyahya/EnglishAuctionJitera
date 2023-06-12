@@ -7,6 +7,7 @@ import { useModal } from "@ebay/nice-modal-react";
 import differenceInSeconds from "date-fns/differenceInSeconds";
 import { useContext, useEffect, useRef } from "react";
 import ModalOfferAuction from "@/components/ModalOfferAuction";
+import useMutateClose from "@/hooks/useMutateClose";
 
 function calculateTimeLeft(delta: number) {
   var hours = Math.floor(delta / 3600);
@@ -26,6 +27,7 @@ type Props = {
 const AuctionRow = (props: Props) => {
   const { data } = props;
   const { mutate: publish, isLoading: publishLoading } = useMutatePublish();
+  const { mutate: close } = useMutateClose();
   const bidModal = useModal(ModalOfferAuction);
   const context = useContext(AppContext);
   const durationRef = useRef<HTMLParagraphElement>(null);
@@ -46,6 +48,7 @@ const AuctionRow = (props: Props) => {
       const delta = differenceInSeconds(new Date(data.endedAt!), new Date());
       if (delta < 0) {
         if (intervalRef.current) clearInterval(intervalRef.current);
+        close(data.id);
         return;
       }
 
@@ -59,7 +62,7 @@ const AuctionRow = (props: Props) => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [data]);
+  }, [data, close]);
 
   return (
     <Tr key={data.id}>

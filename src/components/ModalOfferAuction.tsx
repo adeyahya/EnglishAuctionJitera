@@ -60,20 +60,20 @@ const ModalOfferAuction = create<{ auctionId: string }>((props) => {
         description: err?.response?.data?.message,
       });
     },
-    onSuccess: ({ offer }) => {
+    onSuccess: () => {
       toast({
         status: "success",
         title: "Success Bid",
-        description: `Your offer with amount ${formatCurrency(
-          offer
-        )} has been Accepted!`,
+        description: `Your offer has been Accepted!`,
       });
     },
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    await mutateAsync(data);
-    modal.hide();
+    try {
+      await mutateAsync(data);
+      modal.hide();
+    } catch (error) {}
   });
 
   useEffect(() => {

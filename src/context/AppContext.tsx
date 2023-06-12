@@ -1,7 +1,10 @@
 import axios from "axios";
 import { createContext, useState, useCallback, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
 import { AuthType } from "@/schema/Auth";
 import { Box, Spinner } from "@chakra-ui/react";
+import { AuctionWithBidType } from "@/schema/Auction";
+import { useQueryClient } from "react-query";
 
 type ContextType = {
   isAuthenticated: boolean;
@@ -32,6 +35,7 @@ const Loader = () => {
 
 const AppContextProvider = (props: { children: React.ReactNode }) => {
   const mountedRef = useRef<boolean>(false);
+  const queryClient = useQueryClient();
   const checkAuthState = useCallback(async () => {
     try {
       setState((prev) => ({ ...prev, isLoading: true }));
@@ -57,8 +61,28 @@ const AppContextProvider = (props: { children: React.ReactNode }) => {
   useEffect(() => {
     if (mountedRef.current) return;
     mountedRef.current = true;
+    const initSocket = async () => {
+      await fetch("/api/socket");
+      const socketClient = io({
+        autoConnect: true,
+        reconnection: true,
+        transports: ["websocket"],
+      });
+      socketClient.connect();
+      socketClient.on("auction", (data: AuctionWithBidType) => {
+        const prevData: AuctionWithBidType[] =
+          queryClient.getQueryData("/api/auction") ?? [];
+        const nextData = prevData.map((auction) => {
+          if (auction.id === data.id) return data;
+          return auction;
+        });
+        queryClient.setQueryData("/api/auction", nextData);
+      });
+    };
+
+    initSocket();
     checkAuthState();
-  }, [checkAuthState]);
+  }, [checkAuthState, queryClient]);
 
   return (
     <AppContext.Provider value={state}>

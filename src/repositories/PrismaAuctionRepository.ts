@@ -214,6 +214,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
       const myLastOfferAt = await tx.bid.findFirst({
         where: { auctionId: id, userId },
         select: { createdAt: true },
+        orderBy: { createdAt: "desc" },
       });
 
       if (myLastOfferAt?.createdAt) {
@@ -221,7 +222,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
           myLastOfferAt.createdAt,
           new Date()
         );
-        if (diffSec < 5) {
+        if (Math.abs(diffSec) < 5) {
           throw ErrorInvalidDelay;
         }
       }
