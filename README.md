@@ -1,6 +1,10 @@
 # English Auction
 **English Auction** is web project fully written in Typescript where users can authenticate and create multiple auctions, set the duration of the auction and the other users can bid for the given item. When the auction ends the user with highest bid wins the item.
 
+## Database Diagram
+
+<img src="documents/assets/erd.svg"></img>
+
 ## System Architecture
 
 ```mermaid
