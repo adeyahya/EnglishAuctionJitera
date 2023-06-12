@@ -1,38 +1,66 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# English Auction
+**English Auction** is web project fully written in Typescript where users can authenticate and create multiple auctions, set the duration of the auction and the other users can bid for the given item. When the auction ends the user with highest bid wins the item.
 
-## Getting Started
+## System Architecture
 
-First, run the development server:
+```mermaid
+graph LR
+  subgraph Presentation Layer
+    React(React)
+  end
+  
+  subgraph Application Layer
+    Node(Node.JS Server)
+  end
+  
+  subgraph Data Access Layer
+    ORM(Prisma ORM)
+  end
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+  subgraph Persitent
+    DB(PostgreSQL)
+  end
+  
+  React -- Rest API --> Node --> ORM --> DB
+  Node -- Websocket --> React
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The **Auction System** using client-server architecture where the system divided into 2 main components:
+1. Client (React) for giving user interface and handling user inputs
+2. Server (Node) for handling business process and storing data into the database.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+### Communication
+1. Rest API
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+The server provided a list of endpoint that corresponds to each functionality, get list of auction, create an auction, bid an auction, and authentication.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+2. Websocket
 
-## Learn More
+The websocket used to distribute mutation event on the auction like bid event, publish event, and when some auction ended so the user can keep up with the auction without having to refresh and making request burst to the backend.
 
-To learn more about Next.js, take a look at the following resources:
+### Authentication
+The **Auction System** uses basic authentication email/password with JWT that stored on cookie with httpOnly attribute and per token will be expired in 12 hours.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+by using this approach the user will have good experience because they doesn't need to reloggin after thay close browser session unless they reached 12 hours.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+because the JWT is completely stateless and the token have relatively long lifetime, then if the token compromised, the attacker will have much time to do their stuff. the only whay to stop this is changing the jwt secret on the backend and all users need to reloggin.
 
-## Deploy on Vercel
+### Scaling
+Currently, the only scale scenario that makes sense for this system is by vertical scaling. If we insist to scale it horizontally, the system and transaction will just works fine except for the websocket.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Further Improvement
+Currently for handling bidding race condition it only rely on database lock, so at certain point when a lot of users bidding an auction at the same time, some of then may experience timeout. to tackle that issue I think we need to implement queueing.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Tech Stack Overview
+- Next.js
+
+Both Backend and Frontend stuff implemented in Next.js but with some adjustment that I made on the api handler so it more like express for routing and nest.js for the controller, I use typescript decorator to handle auth, request validation, and response sanitizatio.
+
+- Prisma
+
+For the ORM I use Prisma because it included everything that I need to speed up the development without sacrificing too much on the quality. it comes with migration, schema definition, typechecking, and raw query when needed.
+
+- Typebox & AJV
+
+I've been using Typebox for a long time and I really love it because it can generate both json schema and typescript type. the json schema uses for request & response validation on the backend side and used to validate form validation on the client side.
