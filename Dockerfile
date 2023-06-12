@@ -17,6 +17,7 @@ ARG DATABASE_URL
 ENV DATABASE_URL $DATABASE_URL
 ENV NODE_ENV "production"
 
+RUN npx prisma migrate deploy
 RUN npx prisma generate
 RUN npm run build
 
