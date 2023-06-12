@@ -55,7 +55,7 @@ const handler = async (req: ApiRequest, res: ApiResponse) => {
       });
     });
   }
-  if (req.query.path?.[0] === "socket") return res.end();
+  if (req.query?.path?.[0] === "socket") return res.end();
 
   res.broadcastMessage = (message: string, payload: any) => {
     const socketMap: SocketMap = Container.get("socketMap");
