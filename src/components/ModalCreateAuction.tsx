@@ -62,20 +62,14 @@ const ModalCreateAuction = create(() => {
             </FormControl>
             <FormControl isInvalid={!!errors.startingPrice}>
               <FormLabel>Staring Price</FormLabel>
-              <Input
-                type="number"
-                {...register("startingPrice", { valueAsNumber: true })}
-              />
+              <Input {...register("startingPrice", { valueAsNumber: true })} />
               <FormErrorMessage>
                 {errors.startingPrice?.message}
               </FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.timeWindow}>
               <FormLabel>Time Window</FormLabel>
-              <Input
-                type="number"
-                {...register("timeWindow", { valueAsNumber: true })}
-              />
+              <Input {...register("timeWindow", { valueAsNumber: true })} />
               <FormHelperText>
                 How many hours this auction need to be runs?
               </FormHelperText>

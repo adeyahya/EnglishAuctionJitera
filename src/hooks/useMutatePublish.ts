@@ -12,14 +12,13 @@ const useMutatePublish = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(
-        "/api/auction",
-        (data: any) => {
-          console.log(data);
-          return data.find((n: any) => n.id === data);
-        },
-        data as any
-      );
+      const prevData: AuctionWithBidType[] =
+        queryClient.getQueryData("/api/auction") ?? [];
+      const nextData = prevData.map((auction) => {
+        if (auction.id === data.id) return data;
+        return auction;
+      });
+      queryClient.setQueryData("/api/auction", nextData);
     },
   });
 };
