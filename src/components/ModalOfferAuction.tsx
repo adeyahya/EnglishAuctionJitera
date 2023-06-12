@@ -4,7 +4,6 @@ import {
   BidRequestDTO,
   AuctionWithBidType,
 } from "@/schema/Auction";
-import { formatCurrency } from "@/utils/format";
 import {
   Button,
   FormControl,
