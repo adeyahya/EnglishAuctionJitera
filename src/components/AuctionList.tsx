@@ -17,15 +17,15 @@ import ModalCreateAuction from "@/components/ModalCreateAuction";
 
 const AuctionList = () => {
   const { data = [] } = useAuctionList();
-  const [activeFilter, setActiveFilter] = useState<"OPEN" | "CLOSED" | "DRAFT">(
-    "OPEN"
-  );
+  const [activeFilter, setActiveFilter] = useState<
+    "ALL" | "OPEN" | "CLOSED" | "DRAFT"
+  >("ALL");
   const createAuctionModal = useModal(ModalCreateAuction);
 
-  const filteredData = useMemo(
-    () => data.filter((item) => item.status === activeFilter),
-    [data, activeFilter]
-  );
+  const filteredData = useMemo(() => {
+    if (activeFilter === "ALL") return data;
+    return data.filter((item) => item.status === activeFilter);
+  }, [data, activeFilter]);
 
   return (
     <Box>
@@ -33,6 +33,13 @@ const AuctionList = () => {
         <HStack justify="space-between">
           <Box>
             <ButtonGroup>
+              <Button
+                onClick={() => setActiveFilter("ALL")}
+                colorScheme={activeFilter === "ALL" ? "blue" : undefined}
+                size="sm"
+              >
+                All
+              </Button>
               <Button
                 onClick={() => setActiveFilter("OPEN")}
                 colorScheme={activeFilter === "OPEN" ? "blue" : undefined}
