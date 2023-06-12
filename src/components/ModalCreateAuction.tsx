@@ -1,12 +1,10 @@
 import useMutateCreateAuction from "@/hooks/useMutateCreateAuction";
 import { AuctionRequestDTO, AuctionRequestType } from "@/schema/Auction";
 import {
-  Button,
   FormControl,
   FormErrorMessage,
   FormHelperText,
   FormLabel,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -15,6 +13,8 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
+  Input,
+  Button,
 } from "@chakra-ui/react";
 import { create, useModal } from "@ebay/nice-modal-react";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
