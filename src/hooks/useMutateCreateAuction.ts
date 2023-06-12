@@ -9,7 +9,9 @@ const useMutateCreateAuction = () => {
       const { data } = await axios.post<AuctionType>("/api/auction", payload);
       return data;
     },
-    onSuccess: () => {},
+    onSuccess: () => {
+      queryClient.invalidateQueries("/api/auction");
+    },
   });
 };
 

@@ -48,6 +48,9 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
 
   public async all(userId?: string): Promise<AuctionWithBidType[]> {
     const auctionList = await prisma.auction.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
       where: {
         OR: [
           {
@@ -56,8 +59,12 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
             },
           },
           {
-            status: "DRAFT",
-            userId,
+            ...(userId
+              ? {
+                  status: "DRAFT",
+                  userId,
+                }
+              : {}),
           },
         ],
       },
