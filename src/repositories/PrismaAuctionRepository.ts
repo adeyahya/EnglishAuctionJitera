@@ -12,7 +12,7 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
 
   private transformAuctionWithBid(
     auction: Auction & {
-      bidList: Bid[];
+      bidList: (Bid & { author: { name: string } })[];
     }
   ) {
     return {
@@ -23,14 +23,6 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
         ...bid,
         offer: bid.offer.toNumber(),
       })),
-    };
-  }
-
-  private transformBid(bid: Bid | null) {
-    if (!bid) return bid;
-    return {
-      ...bid,
-      offer: bid.offer.toNumber(),
     };
   }
 
@@ -59,6 +51,13 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
       include: {
         bidList: {
           take: 1,
+          include: {
+            author: {
+              select: {
+                name: true,
+              },
+            },
+          },
           orderBy: {
             createdAt: "desc",
           },
@@ -74,6 +73,13 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
       include: {
         bidList: {
           take: 1,
+          include: {
+            author: {
+              select: {
+                name: true,
+              },
+            },
+          },
           orderBy: {
             createdAt: "desc",
           },
@@ -83,26 +89,19 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
     return this.transformAuctionWithBid(auction);
   }
 
-  public async getHighestBid(id: string) {
-    const auction = await prisma.auction.findUnique({
-      where: { id },
-      select: { highestBidId: true },
-    });
-    if (auction?.highestBidId) {
-      const highestBid = await prisma.bid.findUnique({
-        where: { id: auction?.highestBidId },
-      });
-      return this.transformBid(highestBid);
-    }
-    return null;
-  }
-
   public async find(id: string) {
     const auction = await prisma.auction.findUnique({
       where: { id },
       include: {
         bidList: {
           take: 1,
+          include: {
+            author: {
+              select: {
+                name: true,
+              },
+            },
+          },
           orderBy: {
             createdAt: "desc",
           },
@@ -126,6 +125,13 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
       include: {
         bidList: {
           take: 1,
+          include: {
+            author: {
+              select: {
+                name: true,
+              },
+            },
+          },
           orderBy: {
             createdAt: "desc",
           },

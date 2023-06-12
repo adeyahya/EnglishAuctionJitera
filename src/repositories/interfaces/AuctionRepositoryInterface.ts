@@ -1,4 +1,4 @@
-import { AuctionType, AuctionWithBidType, BidType } from "@/schema/Auction";
+import { AuctionType, AuctionWithBidType } from "@/schema/Auction";
 
 interface AuctionRepositoryInterface {
   all(userId?: string): Promise<AuctionWithBidType[]>;
@@ -11,7 +11,6 @@ interface AuctionRepositoryInterface {
   ): Promise<AuctionWithBidType>;
   close(id: string): Promise<AuctionWithBidType>;
   publish(id: string): Promise<AuctionWithBidType>;
-  getHighestBid(id: string): Promise<BidType | null>;
   placeOffer(id: string, userId: string, amount: number): Promise<void>;
   getCurrentOffer(id: string): Promise<number>;
 }

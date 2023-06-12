@@ -32,11 +32,15 @@ export const BidDTO = Type.Object({
   offer: Type.Number(),
   auctionId: Type.String(),
   userId: Type.String(),
+  author: Type.Object({
+    name: Type.String(),
+  }),
   createdAt: Type.Date(),
 });
 export type BidType = Static<typeof BidDTO>;
 
 export const BidRequestDTO = Type.Pick(BidDTO, ["offer"]);
+export type BidRequestType = Static<typeof BidRequestDTO>;
 
 export const AuctionWithBidDTO = Type.Object({
   ...AuctionDTO.properties,

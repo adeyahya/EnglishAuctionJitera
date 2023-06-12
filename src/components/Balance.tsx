@@ -5,14 +5,14 @@ import { VStack, Text, Skeleton } from "@chakra-ui/react";
 const Balance = () => {
   const { data, isLoading } = useBalance();
 
+  const balance = data?.balance ?? 0;
+  const reservedBalance = data?.reserved ?? 0;
+  const availableBalance = balance - reservedBalance;
   return (
     <Skeleton isLoaded={!isLoading}>
       <VStack spacing="0" align="end">
         <Text fontWeight="bold" fontSize="xs">
-          Usable: <Text as="span">{formatCurrency(data?.balance ?? 0)}</Text>
-        </Text>
-        <Text fontWeight="bold" fontSize="xs" color="orange.600">
-          Reserved: <Text as="span">{formatCurrency(data?.reserved ?? 0)}</Text>
+          Balance: <Text as="span">{formatCurrency(availableBalance)}</Text>
         </Text>
       </VStack>
     </Skeleton>

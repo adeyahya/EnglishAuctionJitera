@@ -79,6 +79,12 @@ class AuctionController {
     const auction = await this.auctionRepo.find(id);
     if (auction.status !== "OPEN") throw ErrorInvalidAuctionState;
 
+    // lazily close auction on offer
+    if (auction.endedAt && auction.endedAt.getTime() < new Date().getTime()) {
+      await this.auctionRepo.close(id);
+      throw ErrorInvalidAuctionState;
+    }
+
     // make sure it's not offering it's own auction
     if (auction.userId === userId) throw ErrorInvalidBid;
 

@@ -56,10 +56,7 @@ const ModalAddDeposit = create(() => {
           <Stack>
             <FormControl isInvalid={!!errors.amount}>
               <FormLabel>Deposit Amount</FormLabel>
-              <Input
-                type="number"
-                {...register("amount", { valueAsNumber: true })}
-              />
+              <Input {...register("amount", { valueAsNumber: true })} />
               <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
             </FormControl>
           </Stack>
