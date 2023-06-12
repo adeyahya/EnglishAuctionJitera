@@ -17,8 +17,13 @@ import { useForm } from "react-hook-form";
 import { typeboxResolver } from "@hookform/resolvers/typebox";
 import useMutateLogin from "@/hooks/useMutateLogin";
 import Link from "next/link";
+import { useContext } from "react";
+import { AppContext } from "@/context/AppContext";
+import { useRouter } from "next/router";
 
 const LoginPage = () => {
+  const router = useRouter();
+  const context = useContext(AppContext);
   const {
     register,
     formState: { errors },
@@ -26,10 +31,12 @@ const LoginPage = () => {
   } = useForm<LoginRequestType>({
     resolver: typeboxResolver(LoginRequestDTO as any),
   });
-  const { mutate, isLoading, error } = useMutateLogin();
+  const { mutateAsync, isLoading, error } = useMutateLogin();
   const errorMessage = (error as any)?.response?.data?.message;
-  const onSubmit = handleSubmit((data) => {
-    mutate(data);
+  const onSubmit = handleSubmit(async (data) => {
+    await mutateAsync(data);
+    await context.checkAuthState();
+    router.replace("/");
   });
 
   return (

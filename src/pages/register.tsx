@@ -18,8 +18,10 @@ import { typeboxResolver } from "@hookform/resolvers/typebox";
 import useMutateRegister from "@/hooks/useMutateRegister";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const LoginPage = () => {
+  const router = useRouter();
   const {
     register,
     watch,
@@ -30,10 +32,11 @@ const LoginPage = () => {
   });
   const password = watch("password");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
-  const { mutate, isLoading, error } = useMutateRegister();
+  const { mutateAsync, isLoading, error } = useMutateRegister();
   const errorMessage = (error as any)?.response?.data?.message;
-  const onSubmit = handleSubmit((data) => {
-    mutate(data);
+  const onSubmit = handleSubmit(async(data) => {
+    await mutateAsync(data);
+    router.replace("/login");
   });
   const isIncorrectPasswordConfirmation =
     password && passwordConfirmation && password !== passwordConfirmation;

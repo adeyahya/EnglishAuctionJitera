@@ -6,14 +6,14 @@ import { Box, Spinner } from "@chakra-ui/react";
 type ContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
-  checkAuthState: () => void;
+  checkAuthState: () => Promise<void>;
   user?: AuthType;
 };
 
 export const AppContext = createContext<ContextType>({
   isAuthenticated: false,
   isLoading: true,
-  checkAuthState: () => {},
+  checkAuthState: () => new Promise(() => {}),
 });
 
 const Loader = () => {
