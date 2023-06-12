@@ -18,6 +18,7 @@ class AuthController {
     this.user = this.user.bind(this);
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
+    this.logout = this.logout.bind(this);
   }
 
   @Auth()
@@ -52,6 +53,11 @@ class AuthController {
       ...params.body,
       password: hashedPassword,
     });
+  }
+
+  public async logout(_: HttpParams, __: ApiRequest, res: ApiResponse) {
+    res.removeAuth();
+    return {};
   }
 }
 

@@ -60,8 +60,7 @@ class Router {
     res.setAuth = (payload: any) => {
       const token = res.jwtSign(
         payload,
-        // TODO: move to envar
-        "secret",
+        process.env.APP_SECRET ?? "supersecret",
         {
           expiresIn: "12h",
         }
@@ -71,6 +70,13 @@ class Router {
         httpOnly: true,
         path: "/",
         maxAge: ms("12h") / 60,
+      });
+    };
+
+    res.removeAuth = () => {
+      res.setCookie("X-SESSION-TOKEN", "", {
+        httpOnly: true,
+        path: "/",
       });
     };
 
@@ -94,7 +100,10 @@ class Router {
       // inject authenticated user if any
       try {
         const cookies = cookie.parse(req.headers.cookie ?? "");
-        const payload = jwt.verify(cookies["X-SESSION-TOKEN"], "secret");
+        const payload = jwt.verify(
+          cookies["X-SESSION-TOKEN"],
+          process.env.APP_SECRET ?? "supersecret"
+        );
         if (!payload) throw {};
         req.authUser = payload;
       } catch (err) {}

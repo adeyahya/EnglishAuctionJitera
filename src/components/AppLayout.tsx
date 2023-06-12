@@ -18,11 +18,18 @@ import Balance from "@/components/Balance";
 import { useModal } from "@ebay/nice-modal-react";
 import ModalAddDeposit from "@/components/ModalAddDeposit";
 import ModalCreateAuction from "@/components/ModalCreateAuction";
+import useMutateLogout from "@/hooks/useMutateLogout";
 
 const AppLayout = (props: { children: React.ReactNode }) => {
   const context = useContext(AppContext);
+  const { mutateAsync } = useMutateLogout();
   const addDepositModal = useModal(ModalAddDeposit);
   const createAuctionModal = useModal(ModalCreateAuction);
+
+  const handleLogout = async () => {
+    await mutateAsync();
+    context.checkAuthState();
+  };
 
   return (
     <Box as="main">
@@ -52,7 +59,7 @@ const AppLayout = (props: { children: React.ReactNode }) => {
                         <MenuItem onClick={() => addDepositModal.show()}>
                           Deposit
                         </MenuItem>
-                        <MenuItem>Logout</MenuItem>
+                        <MenuItem onClick={handleLogout}>Logout</MenuItem>
                       </MenuList>
                     </Portal>
                   </Menu>

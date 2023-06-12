@@ -24,6 +24,7 @@ const accountController = Container.get(AccountController);
  */
 router.post("/auth/login", authController.login);
 router.post("/auth/register", authController.register);
+router.post("/auth/logout", authController.logout);
 router.get("/auth", authController.user);
 
 router.post("/auction/:id/publish", auctionController.publish);

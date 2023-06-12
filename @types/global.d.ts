@@ -53,5 +53,6 @@ declare global {
      * @returns void
      */
     setAuth: (payload: any) => void;
+    removeAuth: () => void;
   }
 }

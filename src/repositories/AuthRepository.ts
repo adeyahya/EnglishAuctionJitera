@@ -18,9 +18,13 @@ class AuthRepository implements AuthRepositoryInterface {
     );
     if (!isPasswordValid) throw new Error();
 
-    const token = jwt.sign({ email: user.email, name: user.name }, "secret", {
-      expiresIn: "12h",
-    });
+    const token = jwt.sign(
+      { email: user.email, name: user.name },
+      process.env.APP_SECRET ?? "supersecret",
+      {
+        expiresIn: "12h",
+      }
+    );
 
     return token;
   }
