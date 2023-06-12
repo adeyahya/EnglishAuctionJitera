@@ -2,25 +2,13 @@ import addHours from "date-fns/addHours";
 import differenceInSeconds from "date-fns/differenceInSeconds";
 import { Auction, Bid, PrismaClient } from "@prisma/client";
 import AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
-import {
-  AuctionRequestType,
-  AuctionType,
-  AuctionWithBidType,
-} from "@/schema/Auction";
+import { AuctionRequestType, AuctionWithBidType } from "@/schema/Auction";
 import { ErrorInsufficientOffer, ErrorInvalidDelay } from "@/lib/HttpError";
 
 const prisma = new PrismaClient();
 
 class PrismaAuctionRepository implements AuctionRepositoryInterface {
   constructor() {}
-
-  private transformAuction(auction: Auction) {
-    return {
-      ...auction,
-      timeWindow: auction.timeWindow.toNumber(),
-      startingPrice: auction.startingPrice.toNumber(),
-    };
-  }
 
   private transformAuctionWithBid(
     auction: Auction & {
@@ -80,13 +68,19 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
     return auctionList.map(this.transformAuctionWithBid);
   }
 
-  public async create(
-    req: AuctionRequestType & { userId: string }
-  ): Promise<AuctionType> {
+  public async create(req: AuctionRequestType & { userId: string }) {
     const auction = await prisma.auction.create({
       data: { ...req, status: "DRAFT" },
+      include: {
+        bidList: {
+          take: 1,
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
     });
-    return this.transformAuction(auction);
+    return this.transformAuctionWithBid(auction);
   }
 
   public async getHighestBid(id: string) {
@@ -103,13 +97,23 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
     return null;
   }
 
-  public async find(id: string): Promise<AuctionType> {
-    const auction = await prisma.auction.findUnique({ where: { id } });
+  public async find(id: string) {
+    const auction = await prisma.auction.findUnique({
+      where: { id },
+      include: {
+        bidList: {
+          take: 1,
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
+    });
     if (!auction) throw new Error("not found");
-    return this.transformAuction(auction);
+    return this.transformAuctionWithBid(auction);
   }
 
-  public async publish(id: string): Promise<AuctionType> {
+  public async publish(id: string) {
     const now = new Date();
     const prevAuction = await this.find(id);
     const auction = await prisma.auction.update({
@@ -119,8 +123,16 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
         publishedAt: now,
         status: "OPEN",
       },
+      include: {
+        bidList: {
+          take: 1,
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
     });
-    return this.transformAuction(auction);
+    return this.transformAuctionWithBid(auction);
   }
 
   public async close(id: string) {
@@ -158,10 +170,6 @@ class PrismaAuctionRepository implements AuctionRepositoryInterface {
       await tx.auction.update({ where: { id }, data: { status: "CLOSED" } });
     });
     return await this.find(id);
-  }
-
-  public async update(id: string, auction: any): Promise<Auction> {
-    return await prisma.auction.update({ where: { id }, data: auction });
   }
 
   public async getCurrentOffer(id: string) {

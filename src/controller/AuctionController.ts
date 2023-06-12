@@ -2,12 +2,12 @@ import {
   ErrorInvalidAuctionState,
   ErrorInvalidBid,
   ErrorNotEnoughBalance,
+  ErrorUnauthorized,
 } from "@/lib/HttpError";
 import { Auth, ValidateBody, ValidateResponse } from "@/lib/Validator";
 import type AccountRepositoryInterface from "@/repositories/interfaces/AccountRepositoryInterface";
 import type AuctionRepositoryInterface from "@/repositories/interfaces/AuctionRepositoryInterface";
 import {
-  AuctionDTO,
   AuctionRequestDTO,
   AuctionWithBidDTO,
   BidRequestDTO,
@@ -36,20 +36,23 @@ class AuctionController {
 
   @Auth()
   @ValidateBody(AuctionRequestDTO)
-  @ValidateResponse(AuctionDTO)
+  @ValidateResponse(AuctionWithBidDTO)
   public async create(params: HttpParams, req: ApiRequest) {
     const body = { ...params.body, userId: req.authUser.id };
     return await this.auctionRepo.create(body);
   }
 
   @Auth()
-  @ValidateResponse(AuctionDTO)
-  public async publish(params: HttpParams) {
+  @ValidateResponse(AuctionWithBidDTO)
+  public async publish(params: HttpParams, req: ApiRequest) {
     const id = params.params.id;
+    const auction = await this.auctionRepo.find(id);
+    if (auction.userId !== req.authUser.id || auction.status !== "DRAFT")
+      throw ErrorUnauthorized;
     return await this.auctionRepo.publish(id);
   }
 
-  @ValidateResponse(AuctionDTO)
+  @ValidateResponse(AuctionWithBidDTO)
   public async view(params: HttpParams) {
     const id = params.params.id;
     const auction = await this.auctionRepo.find(id);
@@ -67,7 +70,7 @@ class AuctionController {
 
   @Auth()
   @ValidateBody(BidRequestDTO)
-  @ValidateResponse(AuctionDTO)
+  @ValidateResponse(AuctionWithBidDTO)
   public async offer(params: HttpParams, req: ApiRequest) {
     const id = params.params.id;
     const userId = req.authUser.id;

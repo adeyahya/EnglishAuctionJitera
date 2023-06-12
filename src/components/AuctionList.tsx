@@ -1,5 +1,6 @@
-import { Table, Thead, Tbody, Tr, Td, Th } from "@chakra-ui/react";
+import { Table, Thead, Tbody, Tr, Th } from "@chakra-ui/react";
 import useAuctionList from "@/hooks/useAuctionList";
+import AuctionRow from "@/components/AuctionRow";
 
 const AuctionList = () => {
   const { data = [] } = useAuctionList();
@@ -16,12 +17,7 @@ const AuctionList = () => {
       </Thead>
       <Tbody>
         {data.map((auction) => (
-          <Tr key={auction.id}>
-            <Td>{auction.title}</Td>
-            <Td>{auction.startingPrice}</Td>
-            <Th>{auction.timeWindow}</Th>
-            <Th>bid</Th>
-          </Tr>
+          <AuctionRow data={auction} key={auction.id} />
         ))}
       </Tbody>
     </Table>
