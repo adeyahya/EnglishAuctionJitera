@@ -75,9 +75,9 @@ The websocket used to distribute mutation event on the auction like bid event, p
 ### Authentication
 The **Auction System** uses basic authentication email/password with JWT that stored on cookie with httpOnly attribute and per token will be expired in 12 hours.
 
-by using this approach the user will have good experience because they doesn't need to reloggin after thay close browser session unless they reached 12 hours.
+by using this approach the user will have good experience because they doesn't need to relogin after they close browser session unless they reached 12 hours.
 
-because the JWT is completely stateless and the token have relatively long lifetime, then if the token compromised, the attacker will have much time to do their stuff. the only whay to stop this is changing the jwt secret on the backend and all users need to reloggin.
+because the JWT is completely stateless and the token have relatively long lifetime, then if the token compromised, the attacker will have much time to do their stuff. the only whay to stop this is changing the jwt secret on the backend and all users need to relogin.
 
 ### Scaling
 Currently, the only scale scenario that makes sense for this system is by vertical scaling. If we insist to scale it horizontally, the system and transaction will just works fine except for the websocket.
@@ -88,7 +88,7 @@ Currently for handling bidding race condition it only rely on database lock, so 
 ## Tech Stack Overview
 - Next.js
 
-Both Backend and Frontend stuff implemented in Next.js but with some adjustment that I made on the api handler so it more like express for routing and nest.js for the controller, I use typescript decorator to handle auth, request validation, and response sanitizatio.
+Both Backend and Frontend stuff implemented in Next.js but with some adjustment that I made on the api handler so it more like express for routing and nest.js for the controller, I use typescript decorator to handle auth, request validation, and response sanitisation.
 
 - Prisma
 
